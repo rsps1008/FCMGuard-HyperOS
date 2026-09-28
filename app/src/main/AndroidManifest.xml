@@ -30,6 +30,16 @@
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true">
 
+        <!-- Acquires the user-approved Shizuku/Sui binder for the optional,
+             advanced Autostart controls. It does not grant any privilege by itself. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
         <!--
           FCM Guard intentionally targets SDK 22 so WRITE_SETTINGS can modify Xiaomi's
           private Settings.System whitelist. Old-target apps can otherwise be placed
