@@ -21,7 +21,7 @@
     <string name="shizuku_connected">Shizuku controls enabled</string>
     <string name="shizuku_unavailable">Shizuku unavailable</string>
     <string name="shizuku_access_summary">Advanced and optional: grant Shizuku access to change the two HyperOS Autostart AppOps for a selected FCM app. This does not start USB debugging.</string>
-    <string name="shizuku_connected_summary">Shizuku is authorized. Tap a scanned app\'s Autostart status: Enabled turns it off; Partial, Disabled, or Unknown turns it on. FCM Guard then reads the result again.</string>
+    <string name="shizuku_connected_summary">Shizuku is authorized. Tap a scanned app\'s Autostart status to switch it.</string>
     <string name="shizuku_not_running">Start Shizuku first, then return and grant access. On non-root phones Shizuku itself needs its own user-started ADB or wireless-debugging session after reboot.</string>
     <string name="shizuku_not_supported">Shizuku controls require Android 6.0 or later.</string>
     <string name="shizuku_access_granted">Shizuku access granted</string>
