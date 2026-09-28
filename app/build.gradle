@@ -22,10 +22,13 @@ android {
 
     signingConfigs {
         debug {
-            storeFile rootProject.file('ci-signing/fcmguard-debug.keystore')
-            storePassword ('and' + 'roid')
-            keyAlias 'fcmguarddebug'
-            keyPassword ('and' + 'roid')
+            def ciKeystore = rootProject.file('ci-signing/fcmguard-debug.keystore')
+            if (ciKeystore.exists()) {
+                storeFile ciKeystore
+                storePassword ('and' + 'roid')
+                keyAlias 'fcmguarddebug'
+                keyPassword ('and' + 'roid')
+            }
         }
     }
 
