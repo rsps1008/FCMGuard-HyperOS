@@ -2,14 +2,20 @@ plugins {
     id 'com.android.application'
 }
 
+// 12.2.0 is the latest official API line compatible with Android 6.0 (minSdk 23).
+// Newer 13.x artifacts require API 24 and would force an unrelated target-SDK migration.
+def shizukuVersion = '12.2.0'
+
 android {
     namespace 'com.reed.fcmguard'
     compileSdk 35
 
     defaultConfig {
         applicationId "com.reed.fcmguard"
-        minSdk 21
-        targetSdk 22
+        // Shizuku's official provider requires Android 6.0 (API 23).
+        minSdk 23
+        // Keep the legacy WRITE_SETTINGS path while satisfying Shizuku's API-23 floor.
+        targetSdk 23
         versionCode 30
         versionName "1.5.9"
     }
@@ -36,4 +42,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    buildFeatures {
+        aidl true
+    }
+}
+
+dependencies {
+    implementation "dev.rikka.shizuku:api:$shizukuVersion"
+    implementation "dev.rikka.shizuku:provider:$shizukuVersion"
+    implementation 'androidx.annotation:annotation:1.3.0'
 }
