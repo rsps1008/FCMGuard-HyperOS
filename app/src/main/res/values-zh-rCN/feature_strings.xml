@@ -21,7 +21,7 @@
     <string name="shizuku_connected">Shizuku 控制功能已启用</string>
     <string name="shizuku_unavailable">Shizuku 不可用</string>
     <string name="shizuku_access_summary">高级可选功能：授权 Shizuku 后，可修改所选 FCM 应用的两个 HyperOS 自启动 AppOps；不会启用 USB 调试。</string>
-    <string name="shizuku_connected_summary">Shizuku 已授权。请在已扫描应用旁选择“管理”以开启或关闭自启动，FCM Guard 会再次读取结果。</string>
+    <string name="shizuku_connected_summary">Shizuku 已授权。直接点击已扫描应用的自启动状态：已开启会关闭；部分开启、未开启或未知会开启。FCM Guard 会再次读取结果。</string>
     <string name="shizuku_not_running">请先启动 Shizuku，再返回授权。非 root 手机上的 Shizuku 在重启后仍需用户自行通过 ADB 或无线调试启动。</string>
     <string name="shizuku_not_supported">Shizuku 控制功能需要 Android 6.0 或更高版本。</string>
     <string name="shizuku_access_granted">已授予 Shizuku 访问权限</string>

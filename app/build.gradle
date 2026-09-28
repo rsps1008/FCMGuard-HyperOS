@@ -14,8 +14,9 @@ android {
         applicationId "com.reed.fcmguard"
         // Shizuku's official provider requires Android 6.0 (API 23).
         minSdk 23
-        // Keep the legacy WRITE_SETTINGS path while satisfying Shizuku's API-23 floor.
-        targetSdk 23
+        // HyperOS accepts its private Settings.System key only on this legacy path.
+        // Shizuku still requires minSdk 23; Gradle warns about the deliberate target/min gap.
+        targetSdk 22
         versionCode 30
         versionName "1.5.9"
     }

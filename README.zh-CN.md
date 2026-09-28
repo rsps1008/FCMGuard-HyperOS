@@ -75,9 +75,9 @@ flowchart TD
     class A,B,C,D,E,F,G,H bw;
 ```
 
-## 为什么使用 `targetSdk 23`
+## 为什么使用 `targetSdk 22`
 
-FCM Guard 有意保持 `compileSdk 35` + `targetSdk 23`。现代 compile SDK 让项目继续使用当前 Android 构建工具，而较旧 target 保留对 Xiaomi 厂商私有 `Settings.System` key 的兼容写入路径，因此可以仅依靠用户授予的 **修改系统设置** 权限完成修复。API 23 同时也是可选官方 Shizuku 整合所需的最低版本；厂商私有设置的实际行为仍须在目标 HyperOS ROM 上验证。
+FCM Guard 有意保持 `compileSdk 35` + `targetSdk 22`。现代 compile SDK 让项目继续使用当前 Android 构建工具，而旧 target 保留对 Xiaomi 厂商私有 `Settings.System` key 的兼容写入路径，因此可以仅依靠用户授予的 **修改系统设置** 权限完成修复。可选官方 Shizuku 整合需要 `minSdk 23`，因此构建会出现刻意保留的 target/min 警告；这比破坏已验证的 HyperOS 私有设置写入路径更可取。
 
 ## 低功耗设计
 
@@ -128,7 +128,7 @@ FCM Guard **不会把“未知”当成“未开启”**。如果所有检测到
 
 ### 可选 Shizuku 自启动控制
 
-高级用户可在自行安装并启动 Shizuku 后，让 FCM Guard 请求明确授权。授权完成后，每个扫描到的 FCM App 都会提供「管理」操作，用于请求修改小米自启动的两个 AppOps（`10008`、`10053`）。命令只在短生命周期的 Shizuku user service 中执行，普通应用进程不会获得该身份；随后 FCM Guard 会在 HyperOS 允许时再次读取状态。
+高级用户可在自行安装并启动 Shizuku 后，让 FCM Guard 请求明确授权。授权完成后，直接点选每个扫描到 FCM App 原有的自启动状态：点「已开启」会请求关闭；点「部分开启」、「未开启」或「未知」会请求开启小米自启动的两个 AppOps（`10008`、`10053`）。命令只在短生命周期的 Shizuku user service 中执行，普通应用进程不会获得该身份；随后 FCM Guard 会在 HyperOS 允许时再次读取状态。
 
 此功能完全可选，**不会**开启 USB 调试。非 Root 手机在重启后，仍须由用户使用自己的 ADB 或无线调试会话启动 Shizuku。只有后续读取到预期状态，才会显示为已验证；不支持或无法读取的 ROM 会明确显示未验证结果，并保留跳转 HyperOS 设置的回退方式。
 

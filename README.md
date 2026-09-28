@@ -74,9 +74,9 @@ flowchart TD
     class A,B,C,D,E,F,G,H bw;
 ```
 
-## Why `targetSdk 23`?
+## Why `targetSdk 22`?
 
-FCM Guard intentionally uses `compileSdk 35` with `targetSdk 23`. The modern compile SDK keeps current tooling, while the legacy target preserves the compatibility path needed to write Xiaomi's vendor-private `Settings.System` key with the user-grantable **Modify system settings** permission. API 23 is also the minimum needed by the optional official Shizuku integration; vendor-setting behavior must still be confirmed on the target HyperOS ROM.
+FCM Guard intentionally uses `compileSdk 35` with `targetSdk 22`. The modern compile SDK keeps current tooling, while the legacy target preserves the compatibility path needed to write Xiaomi's vendor-private `Settings.System` key with the user-grantable **Modify system settings** permission. The optional official Shizuku integration requires `minSdk 23`, so the build emits an intentional target/min warning; that warning is preferable to breaking the proven HyperOS private-setting write path.
 
 ## Low-power design
 
@@ -126,9 +126,10 @@ The normal FCM app scan never modifies Autostart state or introduces Shizuku/roo
 ### Optional Shizuku Autostart controls
 
 For advanced users, FCM Guard can request explicit Shizuku access after Shizuku
-has already been installed and started by the user. Once authorized, each
-scanned FCM app exposes a **Manage** action that can request enable/disable for
-the two Xiaomi Autostart AppOps (`10008` and `10053`). The command is executed
+has already been installed and started by the user. Once authorized, tap an
+app's existing Autostart status: **Enabled** requests disable; **Partial**,
+**Disabled**, or **Unknown** requests enable for the two Xiaomi Autostart AppOps
+(`10008` and `10053`). The command is executed
 inside a short-lived Shizuku user service, not by the normal app process, and
 FCM Guard then re-reads the status when HyperOS permits it.
 

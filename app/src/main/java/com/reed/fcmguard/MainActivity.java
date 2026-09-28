@@ -512,24 +512,17 @@ public class MainActivity extends Activity {
         badge.setMinWidth(dp(72));
         badge.setPadding(dp(10), dp(6), dp(10), dp(6));
         badge.setBackground(makeStatusBadgeBackground(autostartStatus));
+        if (canManageAutostartWithShizuku()) {
+            boolean enable = autostartStatus != AutostartStatusReader.Status.ENABLED;
+            badge.setClickable(true);
+            badge.setFocusable(true);
+            badge.setContentDescription(getString(
+                    enable ? R.string.shizuku_enable_autostart : R.string.shizuku_disable_autostart));
+            badge.setOnClickListener(v -> setAutostartWithShizuku(app, enable));
+        }
         row.addView(badge, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        if (canManageAutostartWithShizuku()) {
-            Button manage = new Button(this);
-            manage.setText(R.string.shizuku_manage);
-            manage.setTextSize(11f);
-            manage.setTextColor(getResources().getColor(R.color.blue));
-            manage.setMinHeight(0);
-            manage.setMinimumHeight(0);
-            manage.setPadding(dp(6), 0, dp(6), 0);
-            manage.setOnClickListener(v -> showShizukuAutostartActions(app));
-            LinearLayout.LayoutParams manageParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, dp(40));
-            manageParams.setMargins(dp(4), 0, 0, 0);
-            row.addView(manage, manageParams);
-        }
 
         fcmAppsContainer.addView(row);
 
@@ -614,23 +607,6 @@ public class MainActivity extends Activity {
             shizukuAccessBtn.setText(R.string.shizuku_unavailable);
             shizukuAccessText.setText(R.string.shizuku_not_running);
         }
-    }
-
-    private void showShizukuAutostartActions(FcmAppScanner.AppEntry app) {
-        new AlertDialog.Builder(this)
-                .setTitle(app.label)
-                .setItems(new CharSequence[] {
-                        getString(R.string.shizuku_enable_autostart),
-                        getString(R.string.shizuku_disable_autostart),
-                        getString(R.string.shizuku_open_app_settings)
-                }, (dialog, which) -> {
-                    if (which == 0) setAutostartWithShizuku(app, true);
-                    else if (which == 1) setAutostartWithShizuku(app, false);
-                    else if (!HyperOsSettings.openAppPermissionEditor(this, app.packageName)) {
-                        toast(getString(R.string.app_settings_unavailable));
-                    }
-                })
-                .show();
     }
 
     private void setAutostartWithShizuku(FcmAppScanner.AppEntry app, boolean enabled) {

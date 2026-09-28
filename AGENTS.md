@@ -142,10 +142,11 @@ validation remains required for HyperOS-specific behavior.
 - Application source is Java and is compiled with Java 17 language/API target
   (`app/build.gradle`). Do not introduce Kotlin or a Java language level that
   contradicts the module configuration without an intentional build migration.
-- The app compiles with SDK 35 and has `minSdk`/`targetSdk` 23. API 23 is needed
-  by the optional official Shizuku provider. Do not raise `targetSdk` casually:
-  this legacy target is still part of the user-grantable `WRITE_SETTINGS`
-  compatibility strategy for Xiaomi's private setting.
+- The app compiles with SDK 35, has `minSdk 23` for the optional official
+  Shizuku provider, and deliberately retains `targetSdk 22`. Do not raise
+  `targetSdk`: this legacy target is part of the user-grantable
+  `WRITE_SETTINGS` compatibility strategy for Xiaomi's private setting. The
+  resulting target/min build warning is intentional and must be reported.
 - CI uses AGP 8.6.1, JDK 17, Android platform/build-tools 35, runs the Python
   layout checker, and builds `:app:assembleDebug`. Main publishes/replaces the
   versioned and stable APK GitHub Release; `feature/**` branches only validate
