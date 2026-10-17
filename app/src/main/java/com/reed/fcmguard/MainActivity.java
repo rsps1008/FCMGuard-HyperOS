@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
     };
     private static final long LANGUAGE_LABEL_INTERVAL_MS = 2200L;
 
+    private NightProtectionUi nightUi;
     private EditText keyEdit;
     private EditText itemEdit;
     private TextView statusHeadline;
@@ -125,6 +126,7 @@ public class MainActivity extends Activity {
         setupAppearance();
         setupSwitches();
         bindActions();
+        nightUi = new NightProtectionUi(this, this::reconcileProtectionService);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             shizukuAutostartManager = new ShizukuAutostartManager(this);
             Shizuku.addRequestPermissionResultListener(shizukuPermissionListener);
@@ -137,11 +139,8 @@ public class MainActivity extends Activity {
         super.onResume();
         configureFullEdgeToEdge();
         startLanguageButtonAnimation();
-        if (SettingsGuard.isProtectionEnabled(this) &&
-                SettingsGuard.usePersistentNotification(this) &&
-                GuardService.canShowPersistentNotification(this)) {
-            startProtectionService();
-        }
+        nightUi.resume();
+        reconcileProtectionService();
         refreshStatus(null);
         updateShizukuAccessUi();
         if (fcmListExpanded && scannedFcmApps != null && !scannedFcmApps.isEmpty()) {
@@ -151,6 +150,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onPause() {
         stopLanguageButtonAnimation();
+        if (nightUi != null) nightUi.pause();
         super.onPause();
     }
 
@@ -335,8 +335,8 @@ public class MainActivity extends Activity {
                 if (result.changed) FcmReconnect.kick(this);
                 toast(getString(R.string.service_started));
             } else {
-                stopService(new Intent(this, GuardService.class));
                 SettingsGuard.setProtectionEnabled(this, false);
+                reconcileProtectionService();
                 toast(getString(R.string.service_stopped));
             }
             refreshStatus(null);
@@ -351,7 +351,7 @@ public class MainActivity extends Activity {
                 notificationAccessPending = false;
                 languageAnimationHandler.removeCallbacks(notificationAccessFollowUp);
             }
-            if (SettingsGuard.isProtectionEnabled(this)) startProtectionService();
+            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()) startProtectionService();
             refreshStatus(null);
         });
     }
@@ -360,7 +360,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.saveBtn).setOnClickListener(v -> {
             SettingsGuard.saveConfig(this, keyEdit.getText().toString(), itemEdit.getText().toString());
             loadConfigIntoFields();
-            if (SettingsGuard.isProtectionEnabled(this)) startProtectionService();
+            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()) startProtectionService();
             toast(getString(R.string.saved));
             refreshStatus(getString(R.string.saved));
         });
@@ -630,6 +630,12 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void reconcileProtectionService() {
+        NightFcmProtection night = NightFcmProtection.get(this);
+        if (SettingsGuard.isProtectionEnabled(this) || night.isEnabled()) startProtectionService();
+        else if (night.isInitialized()) stopService(new Intent(this, GuardService.class));
+    }
+
     private void startProtectionService() {
         Intent service = new Intent(this, GuardService.class);
         try {
@@ -642,6 +648,7 @@ public class MainActivity extends Activity {
                 startService(service);
             }
         } catch (Throwable t) {
+            NightFcmProtection.get(this).serviceFailure(t);
             toast(t.getClass().getSimpleName());
         }
     }
