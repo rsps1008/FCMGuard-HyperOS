@@ -266,3 +266,5 @@ run cleanup. Do not blindly restore an old full-list snapshot.
 Implementation and verification details: [Night protection development notes](docs/nighttime-fcm-protection.md).
 Research: [HyperOS 4 investigation](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md),
 [reference controller](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/app/src/main/java/net/extrawdw/apps/miuisucks/powerkeeper/GameAllowlistProtection.kt).
+
+Release builds retain Lint checks. The deliberate legacy target is reported as an `ExpiredTargetSdkVersion` warning instead of a release-blocking error. In Android Studio, configure the Gradle JDK as JDK 21; the bundled JBR 25.0.3 crashes this project's current Lint version parser. The IDE Gradle JDK and command-line `JAVA_HOME` are separate settings.

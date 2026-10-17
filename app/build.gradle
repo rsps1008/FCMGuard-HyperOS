@@ -50,6 +50,12 @@ android {
     buildFeatures {
         aidl true
     }
+
+    lint {
+        // targetSdk 22 deliberately preserves Xiaomi private Settings write compatibility.
+        // Keep the finding visible without blocking Release for a Google Play policy.
+        warning 'ExpiredTargetSdkVersion'
+    }
 }
 
 dependencies {

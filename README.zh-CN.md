@@ -237,3 +237,5 @@ Debug 的清理按钮须明确确认才移除 GMS。其他应用写入完全相�
 实现及验证细节见 [开发记录](docs/nighttime-fcm-protection.md)。
 参考：[HyperOS 4 调查](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md)、
 [参考控制器](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/app/src/main/java/net/extrawdw/apps/miuisucks/powerkeeper/GameAllowlistProtection.kt)。
+
+Release 构建保留 Lint 检查，刻意保留的旧 target 以 `ExpiredTargetSdkVersion` 警告报告，不再因此阻断 Release。在 Android Studio 中请将 Gradle JDK 设为 JDK 21；其内置 JBR 25.0.3 会触发本项目当前 Lint 版本解析器崩溃。IDE 的 Gradle JDK 与命令行 `JAVA_HOME` 是不同设置。
