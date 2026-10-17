@@ -125,6 +125,13 @@ The normal FCM app scan never modifies Autostart state or introduces Shizuku/roo
 
 ### Optional Shizuku Autostart controls
 
+When Shizuku is unavailable, tapping its button first opens the installed Shizuku
+manager. Only if the manager is missing or cannot be opened does FCM Guard show
+the existing unavailable message. Opening the manager does not start its daemon
+or enable USB/Wireless debugging. Without usable Shizuku authorization, tapping
+an app's Autostart status opens that app's system details page instead of requesting
+a state change. With authorization, the existing enable/disable action is retained.
+
 For advanced users, FCM Guard can request explicit Shizuku access after Shizuku
 has already been installed and started by the user. Once authorized, tap an
 app's existing Autostart status: **Enabled** requests disable; **Partial**,
