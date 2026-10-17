@@ -20,6 +20,8 @@
         </intent>
         <package android:name="com.google.android.gms" />
         <package android:name="com.miui.securitycenter" />
+        <!-- Only discover the manager launcher for the explicit Shizuku button. -->
+        <package android:name="moe.shizuku.privileged.api" />
     </queries>
 
     <application

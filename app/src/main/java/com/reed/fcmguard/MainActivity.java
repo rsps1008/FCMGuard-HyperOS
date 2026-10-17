@@ -512,14 +512,13 @@ public class MainActivity extends Activity {
         badge.setMinWidth(dp(72));
         badge.setPadding(dp(10), dp(6), dp(10), dp(6));
         badge.setBackground(makeStatusBadgeBackground(autostartStatus));
-        if (canManageAutostartWithShizuku()) {
-            boolean enable = autostartStatus != AutostartStatusReader.Status.ENABLED;
-            badge.setClickable(true);
-            badge.setFocusable(true);
-            badge.setContentDescription(getString(
-                    enable ? R.string.shizuku_enable_autostart : R.string.shizuku_disable_autostart));
-            badge.setOnClickListener(v -> setAutostartWithShizuku(app, enable));
-        }
+        boolean enable = autostartStatus != AutostartStatusReader.Status.ENABLED;
+        badge.setClickable(true);
+        badge.setFocusable(true);
+        badge.setContentDescription(getString(canManageAutostartWithShizuku()
+                ? (enable ? R.string.shizuku_enable_autostart : R.string.shizuku_disable_autostart)
+                : R.string.shizuku_open_app_settings));
+        badge.setOnClickListener(v -> setAutostartWithShizuku(app, enable));
         row.addView(badge, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -580,11 +579,23 @@ public class MainActivity extends Activity {
                 renderFcmAppStatuses();
             }
         } else if (state == ShizukuAutostartManager.RequestState.NOT_RUNNING) {
-            toast(getString(R.string.shizuku_not_running));
+            if (!openShizukuApp()) toast(getString(R.string.shizuku_not_running));
         } else if (state == ShizukuAutostartManager.RequestState.UNSUPPORTED) {
             toast(getString(R.string.shizuku_not_supported));
         } else if (state == ShizukuAutostartManager.RequestState.DENIED) {
             toast(getString(R.string.shizuku_access_denied));
+        }
+    }
+
+    /** Opens the manager UI only; never starts its daemon or enables debugging. */
+    private boolean openShizukuApp() {
+        try {
+            Intent launch = getPackageManager().getLaunchIntentForPackage("moe.shizuku.privileged.api");
+            if (launch == null) return false;
+            startActivity(launch);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 
@@ -611,7 +622,9 @@ public class MainActivity extends Activity {
 
     private void setAutostartWithShizuku(FcmAppScanner.AppEntry app, boolean enabled) {
         if (!canManageAutostartWithShizuku()) {
-            requestShizukuAccess();
+            if (!HyperOsSettings.openAppDetails(this, app.packageName)) {
+                toast(getString(R.string.app_settings_unavailable));
+            }
             return;
         }
         shizukuAutostartManager.setAutostart(app.packageName, enabled, (success, detail) -> {
