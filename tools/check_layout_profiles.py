@@ -68,7 +68,7 @@ for required in (
     assert required in ids, f"missing required dashboard id: {required}"
 
 status_card = next(node for node in layout.iter() if node.attrib.get(android_id) == "@+id/statusCard")
-assert status_card.tag == "com.reed.fcmguard.CollapsingStatusCard", (
+assert status_card.tag == "com.rsps1008.fcmguard.CollapsingStatusCard", (
     "statusCard must keep its custom visual-bottom implementation"
 )
 

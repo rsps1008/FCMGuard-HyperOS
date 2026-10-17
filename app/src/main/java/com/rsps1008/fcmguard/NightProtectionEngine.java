@@ -1,4 +1,4 @@
-package com.reed.fcmguard;
+package com.rsps1008.fcmguard;
 
 import java.util.ArrayList;
 import java.util.Arrays;

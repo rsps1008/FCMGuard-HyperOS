@@ -7,18 +7,18 @@ plugins {
 def shizukuVersion = '12.2.0'
 
 android {
-    namespace 'com.reed.fcmguard'
+    namespace 'com.rsps1008.fcmguard'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.reed.fcmguard"
+        applicationId "com.rsps1008.fcmguard"
         // Shizuku's official provider requires Android 6.0 (API 23).
         minSdk 23
         // HyperOS accepts its private Settings.System key only on this legacy path.
         // Shizuku still requires minSdk 23; Gradle warns about the deliberate target/min gap.
         targetSdk 22
-        versionCode 30
-        versionName "1.5.9"
+        versionCode 31
+        versionName "1.6.0"
     }
 
     signingConfigs {

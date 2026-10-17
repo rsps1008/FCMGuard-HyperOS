@@ -1,4 +1,4 @@
-package com.reed.fcmguard;
+package com.rsps1008.fcmguard;
 
 import android.app.Activity;
 import android.app.AlertDialog;

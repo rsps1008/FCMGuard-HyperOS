@@ -32,7 +32,7 @@ policies.
 app/
   build.gradle                         Android module, SDK/version/signing settings
   src/main/AndroidManifest.xml         permissions, visibility, components
-  src/main/java/com/reed/fcmguard/
+  src/main/java/com/rsps1008/fcmguard/
     MainActivity.java                  UI wiring, manual repair and system deep links
     SettingsGuard.java                 whitelist read/parse/repair/last-good state
     GuardService.java                  observer, debounce, fallback and notification mode

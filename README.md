@@ -1,4 +1,6 @@
 <p align="center">
+
+Version 1.6.0 uses the application ID `com.rsps1008.fcmguard` (version code 31). Android treats it as a separate app from the previous package, so existing app settings, permissions and Shizuku authorization are not automatically transferred. Before removing the old app, disable its nighttime protection and complete any pending cleanup.
   <a href="README.md"><strong>English</strong></a> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 

@@ -1,4 +1,4 @@
-package com.reed.fcmguard;
+package com.rsps1008.fcmguard;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

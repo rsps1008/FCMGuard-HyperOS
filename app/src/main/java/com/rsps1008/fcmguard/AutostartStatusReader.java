@@ -1,4 +1,4 @@
-package com.reed.fcmguard;
+package com.rsps1008.fcmguard;
 
 import android.app.AppOpsManager;
 import android.content.Context;

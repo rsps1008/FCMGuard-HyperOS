@@ -1,4 +1,6 @@
 <p align="center">
+
+1.6.0 版本使用应用包名 `com.rsps1008.fcmguard`（versionCode 31）。Android 会将其视为不同于旧包名的独立应用，旧应用的设置、权限及 Shizuku 授权不会自动转移。移除旧应用前，请先停用其夜间保护并完成待清理操作。
   <a href="README.md">English</a> · <a href="README.zh-CN.md"><strong>简体中文</strong></a>
 </p>
 

@@ -1,4 +1,4 @@
-package com.reed.fcmguard;
+package com.rsps1008.fcmguard;
 
 /** Binder contract executed only inside the user-authorized Shizuku service. */
 interface IShizukuAutostartService {
