@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Granted only after an explicit user-authorized Shizuku request. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -32,8 +34,8 @@
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true">
 
-        <!-- Acquires the user-approved Shizuku/Sui binder for the optional,
-             advanced Autostart controls. It does not grant any privilege by itself. -->
+        <!-- Acquires the user-approved Shizuku/Sui binder for optional Autostart
+             controls and the user-requested Aurogon permission grant. -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

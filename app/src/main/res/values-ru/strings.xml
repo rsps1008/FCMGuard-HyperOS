@@ -39,6 +39,7 @@
     <string name="present_yes">Обязательный элемент присутствует: да</string>
     <string name="present_no">Обязательный элемент присутствует: нет</string>
     <string name="notification_mode_foreground">Фоновый режим: foreground service</string>
+    <string name="notification_mode_hidden">Фоновый режим: foreground service (уведомление скрыто системой)</string>
     <string name="notification_mode_quiet">Фоновый режим: тихий</string>
 
     <string name="saved">Конфигурация сохранена</string>

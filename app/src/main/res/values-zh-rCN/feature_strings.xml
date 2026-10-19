@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fcm_apps_title">FCM 应用助手</string>
-    <string name="fcm_apps_summary">自动检测声明了标准 FCM/GCM 接收组件的已安装应用，并在 HyperOS 允许读取时验证它们的自启动状态。</string>
+    <string name="fcm_apps_summary">自动检测声明了标准 FCM/GCM 接收组件的已安装 App，并在 HyperOS 允许读取时验证自启动状态。开启 Aurogon 防护后，自启动已开启的用户 App 会自动加入防护。</string>
     <string name="scan_fcm_apps">扫描 FCM 应用</string>
     <string name="collapse_fcm_apps">收起应用列表</string>
     <string name="open_autostart_manager">在 HyperOS 中统一配置</string>

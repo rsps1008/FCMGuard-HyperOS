@@ -27,27 +27,32 @@ public final class ShizukuAutostartService extends IShizukuAutostartService.Stub
         return "OK";
     }
 
+    @Override public String grantSecureSettings(String packageName) throws RemoteException {
+        if (packageName == null || !packageName.matches("[A-Za-z0-9_]+(?:\\.[A-Za-z0-9_]+)+"))
+            return "INVALID_PACKAGE";
+        String result = runCommand("pm", "grant", packageName, "android.permission.WRITE_SECURE_SETTINGS");
+        return result.startsWith("OK\n") ? "OK" : "GRANT_" + result;
+    }
+
     private String runAppOps(String packageName, int op, String mode) {
+        String result = runCommand("cmd", "appops", "set", packageName, String.valueOf(op), mode);
+        return result.startsWith("OK\n") ? "OK" : result;
+    }
+
+    private String runCommand(String... args) {
         try {
-            // ProcessBuilder arguments, rather than a shell string, prevent package names
-            // from changing the command structure.
-            Process process = new ProcessBuilder(
-                    "cmd", "appops", "set", packageName, String.valueOf(op), mode)
-                    .redirectErrorStream(true)
-                    .start();
+            Process process = new ProcessBuilder(args).redirectErrorStream(true).start();
             String output = readLimited(process.getInputStream());
             int exit = process.waitFor();
-            if (exit == 0) return "OK";
+            if (exit == 0) return "OK\n" + output;
             return "EXIT_" + exit + compact(output);
-        } catch (Throwable t) {
-            return "ERROR_" + t.getClass().getSimpleName();
-        }
+        } catch (Throwable t) { return "ERROR_" + t.getClass().getSimpleName(); }
     }
 
     private String readLimited(InputStream stream) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buffer = new byte[256];
-        int remaining = 512;
+        int remaining = 131072;
         int read;
         while (remaining > 0 && (read = stream.read(buffer, 0, Math.min(buffer.length, remaining))) != -1) {
             out.write(buffer, 0, read);

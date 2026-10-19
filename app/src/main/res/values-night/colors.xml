@@ -31,4 +31,6 @@
     <color name="primary_pressed">#2C5BAE</color>
     <color name="primary_disabled">#45556E</color>
     <color name="secondary_pressed">#303640</color>
+    <color name="aurogon_action_disabled_bg">#343941</color>
+    <color name="aurogon_action_disabled_text">#939AA4</color>
 </resources>

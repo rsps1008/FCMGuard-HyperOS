@@ -10,7 +10,7 @@
     <string name="wake_fcm">立即唤醒 FCM</string>
     <string name="open_fcm_diag">打开 FCM 诊断</string>
     <string name="status_title">状态</string>
-    <string name="current_value_title">当前白名单值</string>
+    <string name="current_value_title">不受小米省电策略限制的 App</string>
     <string name="language">语言</string>
     <string name="follow_system">跟随系统</string>
     <string name="english">English</string>
@@ -39,6 +39,7 @@
     <string name="present_yes">必需项存在：是</string>
     <string name="present_no">必需项存在：否</string>
     <string name="notification_mode_foreground">后台模式：前台服务</string>
+    <string name="notification_mode_hidden">后台模式：前台服务（通知被系统隐藏）</string>
     <string name="notification_mode_quiet">后台模式：静默纯后台</string>
 
     <string name="saved">配置已保存</string>

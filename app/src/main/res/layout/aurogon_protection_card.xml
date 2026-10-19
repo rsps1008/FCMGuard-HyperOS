@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/card_gap" android:orientation="vertical"
+    android:background="@drawable/card_bg">
+    <Switch android:id="@+id/aurogonSwitch" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="@string/aurogon_title"
+        android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+    <TextView android:id="@+id/aurogonExplanation" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="@string/aurogon_explanation"
+        android:textColor="@color/text_secondary" android:textSize="13sp"
+        android:lineSpacingExtra="2dp" android:paddingTop="5dp" />
+    <TextView android:id="@+id/aurogonSummary" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="@string/aurogon_status_initial"
+        android:textColor="@color/text_primary" android:textSize="13sp" android:paddingTop="8dp" />
+    <LinearLayout android:id="@+id/aurogonToolsRow" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
+        <Button android:id="@+id/aurogonClearSetting" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="48dp"
+            android:text="@string/aurogon_clear_setting" android:textAllCaps="false"
+            android:textColor="@color/aurogon_action_text" android:background="@drawable/aurogon_action_button_bg" />
+        <Space android:layout_width="8dp" android:layout_height="1dp" />
+        <Button android:id="@+id/aurogonSyncNow" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="48dp"
+            android:text="@string/aurogon_sync_now" android:textAllCaps="false"
+            android:textColor="@color/aurogon_action_text" android:background="@drawable/aurogon_action_button_bg" />
+    </LinearLayout>
+    <Button android:id="@+id/aurogonViewSetting" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginTop="8dp"
+        android:text="@string/aurogon_view_setting" android:textAllCaps="false"
+        android:textColor="@color/text_primary" android:background="@drawable/secondary_button_bg" />
+    <Button android:id="@+id/aurogonShizukuSetup" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginTop="8dp"
+        android:text="@string/aurogon_shizuku_setup" android:textAllCaps="false"
+        android:textColor="@color/text_primary" android:background="@drawable/secondary_button_bg" />
+</LinearLayout>

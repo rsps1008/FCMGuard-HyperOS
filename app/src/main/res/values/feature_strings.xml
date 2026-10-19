@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fcm_apps_title">FCM app assistant</string>
-    <string name="fcm_apps_summary">Detect installed apps that declare standard FCM/GCM receive components, then verify their HyperOS Autostart state when the ROM exposes it.</string>
+    <string name="fcm_apps_summary">Detect installed apps that declare standard FCM/GCM receive components, then verify their HyperOS Autostart state when available. With Aurogon protection enabled, user apps with Autostart on are added automatically.</string>
     <string name="scan_fcm_apps">Scan FCM apps</string>
     <string name="collapse_fcm_apps">Collapse app list</string>
     <string name="open_autostart_manager">Configure all in HyperOS</string>

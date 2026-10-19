@@ -30,6 +30,7 @@ public class GuardService extends Service {
     private boolean foreground;
     private ContentObserver nightObserver;
     private NightFcmProtection night;
+    private volatile boolean aurogonInFlight;
     private HandlerThread repairThread;
     private Handler repairHandler;
     private boolean destroyed;
@@ -41,6 +42,7 @@ public class GuardService extends Service {
     private final Runnable fallbackCheck = new Runnable() {
         @Override public void run() {
             repair(false);
+            maintainAurogon();
             handler.postDelayed(this, FALLBACK_INTERVAL_MS);
         }
     };
@@ -69,7 +71,9 @@ public class GuardService extends Service {
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!SettingsGuard.isProtectionEnabled(this) && night.isInitialized() && !night.isEnabled()) {
+        if (!SettingsGuard.isProtectionEnabled(this) && night.isInitialized() && !night.isEnabled()
+                && !(AurogonProtection.isAutoSyncEnabled(this)
+                && AurogonProtection.hasSecureSettingsPermission(this))) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -96,6 +100,22 @@ public class GuardService extends Service {
         });
     }
 
+    private void maintainAurogon() {
+        if (!AurogonProtection.isAutoSyncEnabled(this)) return;
+        if (!AurogonProtection.hasSecureSettingsPermission(this)) {
+            AurogonProtection.failure(this, "WRITE_SECURE_SETTINGS not granted; request through Shizuku");
+            return;
+        }
+        if (aurogonInFlight || repairHandler == null) return;
+        aurogonInFlight = true;
+        repairHandler.post(() -> {
+            try {
+                if (!destroyed) AurogonProtection.syncCurrentAutostartApps(this);
+            } finally {
+                aurogonInFlight = false;
+            }
+        });
+    }
     private void registerObserver() {
         ContentResolver resolver = getContentResolver();
         try {
@@ -138,7 +158,9 @@ public class GuardService extends Service {
             handler.removeCallbacks(nightRepair);
             night.observer(false);
         }
-        if (night.isInitialized() && !night.isEnabled() && !SettingsGuard.isProtectionEnabled(this)) stopSelf();
+        if (night.isInitialized() && !night.isEnabled() && !SettingsGuard.isProtectionEnabled(this)
+                && !(AurogonProtection.isAutoSyncEnabled(this)
+                && AurogonProtection.hasSecureSettingsPermission(this))) stopSelf();
     }
 
     private void applyExecutionMode() {

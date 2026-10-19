@@ -39,6 +39,7 @@
     <string name="present_yes">Erforderlicher Eintrag vorhanden: ja</string>
     <string name="present_no">Erforderlicher Eintrag vorhanden: nein</string>
     <string name="notification_mode_foreground">Hintergrundmodus: Vordergrunddienst</string>
+    <string name="notification_mode_hidden">Hintergrundmodus: Vordergrunddienst (Benachrichtigung vom System ausgeblendet)</string>
     <string name="notification_mode_quiet">Hintergrundmodus: still</string>
 
     <string name="saved">Konfiguration gespeichert</string>

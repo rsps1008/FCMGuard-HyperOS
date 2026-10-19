@@ -36,6 +36,7 @@
     <string name="present_yes">&#x5FC5;&#x9808;&#x9805;&#x76EE;&#xFF1A;&#x3042;&#x308A;</string>
     <string name="present_no">&#x5FC5;&#x9808;&#x9805;&#x76EE;&#xFF1A;&#x306A;&#x3057;</string>
     <string name="notification_mode_foreground">&#x30D0;&#x30C3;&#x30AF;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;&#x30E2;&#x30FC;&#x30C9;&#xFF1A;&#x30D5;&#x30A9;&#x30A2;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;&#x30B5;&#x30FC;&#x30D3;&#x30B9;</string>
+    <string name="notification_mode_hidden">&#x30D0;&#x30C3;&#x30AF;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;&#x30E2;&#x30FC;&#x30C9;&#xFF1A;&#x30D5;&#x30A9;&#x30A2;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;&#x30B5;&#x30FC;&#x30D3;&#x30B9;&#xFF08;&#x901A;&#x77E5;&#x306F;&#x30B7;&#x30B9;&#x30C6;&#x30E0;&#x306B;&#x3088;&#x308A;&#x975E;&#x8868;&#x793A;&#xFF09;</string>
     <string name="notification_mode_quiet">&#x30D0;&#x30C3;&#x30AF;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;&#x30E2;&#x30FC;&#x30C9;&#xFF1A;&#x9759;&#x97F3;&#x30D0;&#x30C3;&#x30AF;&#x30B0;&#x30E9;&#x30A6;&#x30F3;&#x30C9;</string>
     <string name="saved">&#x8A2D;&#x5B9A;&#x3092;&#x4FDD;&#x5B58;&#x3057;&#x307E;&#x3057;&#x305F;</string>
     <string name="repaired">&#x4FEE;&#x5FA9; / &#x4FDD;&#x8B77;&#x3057;&#x307E;&#x3057;&#x305F;</string>

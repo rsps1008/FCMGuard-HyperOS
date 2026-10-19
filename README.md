@@ -22,7 +22,7 @@ Version 1.6.0 uses the application ID `com.rsps1008.fcmguard` (version code 31).
 
 ## Highlights
 
-- **Low-privilege by default** — normal protection uses the user-grantable **Modify system settings** permission instead of root, persistent ADB, Accessibility, VPN, overlay, or device-admin privileges. An optional, user-authorized Shizuku control is available only for advanced per-app Autostart changes.
+- **Low-privilege by default** — MILLET and Game Allowlist protection use user-grantable Modify system settings. The optional Aurogon Global sync uses a one-time `WRITE_SECURE_SETTINGS` grant through the existing, explicitly authorized Shizuku service; it does not require an ADB grant.
 - **Finance-app friendly** — keeps the implementation deliberately low-privilege for better compatibility with security-sensitive apps.
 - **Low background power** — exact event-driven monitoring is the main path; the 30-minute fallback is in-process and does not deliberately wake a sleeping phone.
 - **Reconnects only when needed** — FCM/MCS reconnect broadcasts are sent only after a real whitelist repair or a manual request.
@@ -167,9 +167,9 @@ Also enable **Autostart** for the affected app when the ROM exposes that option.
 
 ## Permissions and privacy
 
-FCM Guard uses `WRITE_SETTINGS`, `RECEIVE_BOOT_COMPLETED`, foreground-service/notification support, and narrow package visibility for FCM/GCM handlers, Google Play services, and Xiaomi Security Center.
+FCM Guard declares `WRITE_SETTINGS`, `WRITE_SECURE_SETTINGS`, `RECEIVE_BOOT_COMPLETED`, foreground-service/notification support, and narrow package visibility for FCM/GCM handlers, Google Play services, and Xiaomi Security Center. Android does not grant `WRITE_SECURE_SETTINGS` to an ordinary install. The user can explicitly request its grant through Shizuku; FCM Guard checks the app permission after the request and reports failure if it remains unavailable.
 
-It does **not** require root, Shizuku, persistent ADB, Accessibility, VPN, overlay, device-admin, account access, or traffic inspection.
+It does not require root, persistent ADB, Accessibility, VPN, overlay, device-admin, account access, or traffic inspection. Aurogon sync needs Shizuku only for the initial `WRITE_SECURE_SETTINGS` grant; later Autostart reads and settings updates run under the app UID.
 
 ## Limitations
 
@@ -204,10 +204,16 @@ MIT License — see [LICENSE](LICENSE).
 ## Experimental HyperOS 4 nighttime FCM protection
 
 The independent, default-off **Nighttime FCM protection** card uses ordinary app
-`WRITE_SETTINGS` access to `Settings.System["com.miui.game.allowlist"]`. It needs
-neither root, Shizuku, persistent ADB, Accessibility nor any new permission. The
-existing optional Shizuku Autostart feature is separate and unchanged. The legacy
-`targetSdk 22` and original MILLET protection remain unchanged.
+`WRITE_SETTINGS` access to `Settings.System["com.miui.game.allowlist"]`. This part
+does not require root, Shizuku, persistent ADB or Accessibility. The Aurogon
+card has its own opt-in switch, off by default. When enabled, FCM Guard itself
+reads user-installed apps' Xiaomi Autostart AppOps (10008 and 10053) and syncs
+them to `Settings.Global["aurogon_enable"]` at startup and through the existing
+30-minute in-process fallback. Manual sync uses the same app-UID path. Shizuku
+is only needed once to grant `WRITE_SECURE_SETTINGS`; subsequent syncing does
+not use Shizuku. The card can list user apps not currently covered by an active
+Aurogon FCM rule without showing the underlying rule text. The legacy `targetSdk 22` and
+original MILLET protection remain unchanged.
 
 This targets the China-ROM HyperOS 4 nightDoze policy observed at 23:00–07:59,
 with screen off and deep Doze. It is an undocumented, experimental workaround,
@@ -229,29 +235,30 @@ no extra timer, alarm, job or wake lock. Broadcast requests are rate-limited to
 one pair per 10 seconds; failed recovery may retry on a later fallback without
 rewriting healthy membership.
 
-Both protection switches independently control the shared GuardService. Night
+The MILLET, Nighttime, and Aurogon switches independently control the shared GuardService. Night
 protection registers only its exact key observer, debounces for 400 ms, and is
 checked again on startup. Foreground notification mode is shared and optional;
 quiet mode is less reliable. Monitoring cannot run after the process is stopped.
 Boot/package-replacement restart honors either enabled switch.
 
-**Recheck** only reads. **Repair now / retry cleanup** repairs while enabled and
-retries cleanup while disabled. **Test thaw / reconnect** changes no setting and
-independently dispatches Xiaomi's `REFRESH_WHITE_LIST_ACTION` to `android` with
-`pkgName=com.google.android.gms, option=-1`, and `GCM_RECONNECT` to GMS. It does not
-change MiPush membership. Original GTALK/MCS heartbeat actions are preserved.
-Sending a broadcast does not establish receiver acceptance, thaw or connection.
+The dashboard shows the `WRITE_SECURE_SETTINGS` grant state and Aurogon sync
+result. Sync includes only enabled user apps with an active FCM receive
+component and both Xiaomi Autostart AppOps enabled. Apps whose Autostart state
+is unreadable keep an existing managed rule, but are not newly added; known
+disabled apps and stale rules are removed. An incomplete FCM component scan
+leaves the current setting unchanged. Shizuku is only needed for the initial
+permission grant. Aurogon's periodic sync runs only while its switch is
+enabled; a manual sync remains available while it is off. The main app no longer exposes
+the Night Protection debug/test buttons. Broadcast dispatch does not establish
+receiver acceptance, thaw or connection. Original GTALK/MCS heartbeat actions
+remain available through the existing repair flow.
 Ordinary app permissions cannot verify frozen state, FCM sockets, clone-profile
 recovery or controlled nighttime protection; the UI never reports these as
 verified success. Deep Doze is left enabled.
 
-Expand Debug for per-step results, the raw game setting, permission/read/write/
-observer status, build labels, last configuration repair/error, ownership state
-and the latest 100 persistent timestamped technical log entries. Reports and logs
-can be copied; logs can be cleared. Error details and technical logs use English;
-UI labels are English, Traditional Chinese and Simplified Chinese, with English
-fallback for the other seven locales. Settings I/O and persistence run on a
-serial worker, without a UI polling loop or retained Activity listener.
+The dashboard reports the night-protection summary, secure-settings permission,
+simple Aurogon synchronization status and usage guidance; raw setting values are shown only on request.
+Settings I/O and persistence run outside the UI thread.
 
 Ownership is durably recorded before the first write. Disabling preserves
 preexisting GMS, removes only app-added exact GMS tokens, preserves other entries,

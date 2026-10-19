@@ -25,6 +25,7 @@ public final class ShizukuAutostartManager {
     private String pendingPackage;
     private boolean pendingEnabled;
     private Callback pendingCallback;
+    private int pendingOperation;
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -40,8 +41,8 @@ public final class ShizukuAutostartManager {
 
     public ShizukuAutostartManager(Context context) {
         args = new Shizuku.UserServiceArgs(new ComponentName(context, ShizukuAutostartService.class))
-                .tag("fcmguard-autostart-v1")
-                .version(1)
+                .tag("fcmguard-autostart-v2")
+                .version(2)
                 .daemon(false)
                 .processNameSuffix("fcmguard-autostart");
     }
@@ -91,6 +92,20 @@ public final class ShizukuAutostartManager {
         pendingPackage = packageName;
         pendingEnabled = enabled;
         pendingCallback = callback;
+        pendingOperation = 1;
+        bindIfNeeded();
+    }
+
+    public void grantSecureSettings(String packageName, Callback callback) {
+        if (!hasPermission()) { callback.onComplete(false, "PERMISSION_REQUIRED"); return; }
+        if (pendingCallback != null) { callback.onComplete(false, "BUSY"); return; }
+        pendingPackage = packageName;
+        pendingCallback = callback;
+        pendingOperation = 2;
+        bindIfNeeded();
+    }
+
+    private void bindIfNeeded() {
         if (service != null) {
             runPending();
             return;
@@ -106,11 +121,16 @@ public final class ShizukuAutostartManager {
         final IShizukuAutostartService active = service;
         final String packageName = pendingPackage;
         final boolean enabled = pendingEnabled;
+        final int operation = pendingOperation;
         if (active == null || packageName == null || pendingCallback == null) return;
         new Thread(() -> {
             try {
-                String result = active.setAutostart(packageName, enabled);
-                completePending("OK".equals(result), result);
+                String result;
+                if (operation == 1) result = active.setAutostart(packageName, enabled);
+                else if (operation == 2) result = active.grantSecureSettings(packageName);
+                else result = active.grantSecureSettings(packageName);
+                boolean success = "OK".equals(result);
+                completePending(success, result);
             } catch (RemoteException e) {
                 completePending(false, "REMOTE_" + e.getClass().getSimpleName());
             } catch (Throwable t) {
@@ -123,6 +143,7 @@ public final class ShizukuAutostartManager {
         Callback callback = pendingCallback;
         pendingCallback = null;
         pendingPackage = null;
+        pendingOperation = 0;
         if (callback != null) mainHandler.post(() -> callback.onComplete(success, detail));
     }
 

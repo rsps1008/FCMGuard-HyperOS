@@ -11,7 +11,9 @@ public class BootReceiver extends BroadcastReceiver {
         NightFcmProtection night = NightFcmProtection.get(context);
         night.whenReady(() -> {
             try {
-                if (!SettingsGuard.isProtectionEnabled(context) && !night.isEnabled()) return;
+                if (!SettingsGuard.isProtectionEnabled(context) && !night.isEnabled()
+                        && !(AurogonProtection.isAutoSyncEnabled(context)
+                        && AurogonProtection.hasSecureSettingsPermission(context))) return;
                 Intent service = new Intent(context, GuardService.class);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         SettingsGuard.usePersistentNotification(context)) {

@@ -39,6 +39,7 @@
     <string name="present_yes">Item obrigatório presente: sim</string>
     <string name="present_no">Item obrigatório presente: não</string>
     <string name="notification_mode_foreground">Modo em segundo plano: serviço em primeiro plano</string>
+    <string name="notification_mode_hidden">Modo em segundo plano: serviço em primeiro plano (notificação ocultada pelo sistema)</string>
     <string name="notification_mode_quiet">Modo em segundo plano: silencioso</string>
 
     <string name="saved">Configuração guardada</string>

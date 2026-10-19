@@ -10,7 +10,7 @@
     <string name="wake_fcm">Wake FCM now</string>
     <string name="open_fcm_diag">Open FCM diagnostics</string>
     <string name="status_title">Status</string>
-    <string name="current_value_title">Current whitelist value</string>
+    <string name="current_value_title">Apps exempt from Xiaomi battery restrictions</string>
     <string name="language">Language</string>
     <string name="follow_system">Follow system</string>
     <string name="english">English</string>
@@ -39,6 +39,7 @@
     <string name="present_yes">Required item present: yes</string>
     <string name="present_no">Required item present: no</string>
     <string name="notification_mode_foreground">Background mode: foreground service</string>
+    <string name="notification_mode_hidden">Background mode: foreground service (notification hidden by system)</string>
     <string name="notification_mode_quiet">Background mode: quiet background-only</string>
 
     <string name="saved">Configuration saved</string>

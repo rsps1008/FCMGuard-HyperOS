@@ -22,7 +22,7 @@
 
 ## 亮点
 
-- **默认低权限** — 常规保护仅使用用户可手动授权的 **修改系统设置** 权限，不依赖 Root、持续 ADB、无障碍、VPN、悬浮窗或设备管理员。仅针对高级用户，另提供需明确授权的可选 Shizuku 单应用自启动控制功能。
+- **默认低权限** — MILLET 与 Game Allowlist 保护使用用户可授予的“修改系统设置”权限。可选 Aurogon Global 同步通过现有 Shizuku 服务一次性授予 `WRITE_SECURE_SETTINGS`，不需要通过 ADB 授权。
 - **对金融 App 更友好** — 整体保持低权限设计，避免引入更容易触发安全敏感 App 风控的高权限方案。
 - **低后台耗电** — 主要采用精确事件监听，30 分钟兜底检查仅在进程内运行，不会主动唤醒休眠手机。
 - **只在必要时重连** — 仅在真正执行白名单修复后，或用户手动点击时发送 FCM/MCS 重连请求。
@@ -155,9 +155,9 @@ FCM Guard 保护的是 **Google Play 服务 / FCM 传输层**，但不会绕过 
 
 ## 权限与隐私
 
-FCM Guard 使用 `WRITE_SETTINGS`、`RECEIVE_BOOT_COMPLETED`、前台服务 / 通知支持，以及针对 FCM/GCM handler、Google Play 服务和小米安全中心的窄范围 package visibility。
+FCM Guard 声明 `WRITE_SETTINGS`、`WRITE_SECURE_SETTINGS`、`RECEIVE_BOOT_COMPLETED`、前台服务 / 通知支持，以及针对 FCM/GCM handler、Google Play 服务和小米安全中心的窄范围 package visibility。普通安装不会获得 `WRITE_SECURE_SETTINGS`。用户可通过 Shizuku 明确请求授予；FCM Guard 会检查 App 权限，并在权限仍不可用时报告失败。
 
-FCM Guard **不需要** Root、Shizuku、持续 ADB、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取。
+FCM Guard 不需要 Root、持续 ADB、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取。Aurogon 同步只在首次授予 `WRITE_SECURE_SETTINGS` 时需要 Shizuku；后续由应用自身读取自启动状态并写入设置。
 
 ## 局限性
 
@@ -191,9 +191,12 @@ MIT License — 见 [LICENSE](LICENSE)。
 ## HyperOS 4 夜间 FCM 防冻结（实验性）
 
 主画面新增独立、默认关闭的「夜间 FCM 防冻结」卡片，通过普通 App 的
-`WRITE_SETTINGS` 权限操作 `Settings.System["com.miui.game.allowlist"]`，不需要
-Root、Shizuku、持续 ADB、无障碍服务或新增权限。原有可选 Shizuku 自启动功能与
-本功能无关。保留 `targetSdk 22` 与原有 MILLET 白名单保护。
+`WRITE_SETTINGS` 权限操作 `Settings.System["com.miui.game.allowlist"]`；此部分不需要
+Root、Shizuku、持续 ADB 或无障碍服务。Aurogon 卡片有独立开关，默认关闭。开启后，FCM Guard
+自身读取用户安装 App 的 Xiaomi 自启动 AppOps（10008 与 10053），并在服务启动及现有 30 分钟
+进程内兜底检查时同步到 `Settings.Global["aurogon_enable"]`；手动同步共用此 App UID 流程。
+Shizuku 仅用于首次授予 `WRITE_SECURE_SETTINGS`，后续同步不再使用 Shizuku。卡片可列出目前
+不受 Aurogon FCM 规则控制的用户 App 名称，不显示底层规则。保留 `targetSdk 22` 与原有 MILLET 白名单保护。
 
 功能针对中国版 HyperOS 4 在 23:00–07:59、息屏及 Deep Doze 下观察到的 nightDoze
 策略，属于未公开的实验性系统机制，不保证消息送达。旧版或无法辨识的 ROM 不会
@@ -209,23 +212,22 @@ Settings 没有 CAS，最终读取与写入之间仍可能被外部组件抢写�
 不增加计时器、闹钟、任务或 WakeLock。解冻与重连广播每 10 秒最多一组；失败的
 恢复可在后续兜底重试，无需重写健康清单。
 
-两个保护开关独立控制共享 GuardService。夜间功能仅监听自己的 Key，采用 400 ms
+MILLET、夜间及 Aurogon 开关独立控制共享 GuardService。Aurogon 未开启时不会进行周期同步；
+手动同步按钮仍可单独执行。夜间功能仅监听自己的 Key，采用 400 ms
 防抖，并在启动时重新检查。常驻通知模式共享且可选；纯后台模式可靠性较低，
 进程停止后不能继续监控。开机或应用替换后按任一已启用开关尝试恢复服务。
 
-「重新检查」只读；「立即修复／重试清理」在开启时修复、停用时重试清理。
-「测试解冻／重连」不改设置，分别向 android 发送小米
-`REFRESH_WHITE_LIST_ACTION`（`pkgName=com.google.android.gms, option=-1`），
-向 GMS 发送 `GCM_RECONNECT`，不修改 MiPush 成员；原有 GTALK/MCS 心跳保留。
-广播发送不表示接收方接受、已解冻或已连接。普通 App 权限不能验证冻结状态、FCM
-Socket、分身恢复或受控夜间防冻结效果，界面不会报告此类验证成功，也不会关闭
+主画面显示 `WRITE_SECURE_SETTINGS` 授权状态及 Aurogon 同步结果。同步只纳入已开启的用户 App，
+且必须同时具有有效 FCM 接收组件及两个已开启的小米自启动 AppOps。无法读取自启动状态的 App
+会保留原有受管理规则，但不会新增；已确认关闭及过期规则会移除。FCM 扫描不完整时保留现有设置。
+Shizuku 仅用于首次授予权限。
+夜间保护卡不再显示 Debug／测试按钮。广播发送不表示接收方已
+接受、已解冻或已连接；原有 GTALK/MCS 心跳行为保留。普通 App 权限不能验证冻结状态、
+FCM Socket、分身恢复或受控夜间防冻结效果，界面不会报告此类验证成功，也不会关闭
 Deep Doze。
 
-展开 Debug 可查看各步骤结果、游戏清单原始值、权限／读写／监听器状态、系统版本
-标签、最后修复设置时间、错误、所有权及最近 100 条持久化诊断日志。支持复制完整
-报告、复制及清除日志。技术错误和日志使用英语；界面提供英文、繁体中文、简体
-中文，其余七种语言使用英语 fallback。Settings I/O 和持久化使用串行后台线程，
-不轮询 UI、不保留 Activity 监听器。
+主画面以一般说明及简洁状态显示 Aurogon 同步功能；查看按钮列出未受控制的用户 App 名称，不显示原始设置值或规则动作。
+Settings I/O 和持久化在后台执行，不阻塞 UI。
 
 首次写入前持久记录 GMS 是否原本存在。停用时保留原有 GMS，只移除本应用加入的
 完整 GMS token，保留其他项目；必要时写入非 null 空字符串，让 Framework 有机会

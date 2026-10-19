@@ -11,9 +11,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.LinearLayout;
 
 /**
- * Status-card surface whose visible lower edge can collapse without changing the
- * measured layout height. Keeping layout geometry stable avoids scroll feedback,
- * while the custom outline keeps the rounded shadow attached to the moving edge.
+ * Rounded status-card surface that keeps its detail and value panels cleanly layered.
  */
 public final class CollapsingStatusCard extends LinearLayout {
     private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);

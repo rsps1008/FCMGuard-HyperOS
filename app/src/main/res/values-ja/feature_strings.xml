@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fcm_apps_title">FCM アプリ アシスタント</string>
-    <string name="fcm_apps_summary">標準の FCM/GCM 受信コンポーネントを宣言するインストール済みアプリを検出し、HyperOS が公開している場合は自動起動状態も確認します。</string>
+    <string name="fcm_apps_summary">標準の FCM/GCM 受信コンポーネントを持つアプリを検出し、HyperOS が許可する場合は自動起動状態も確認します。Aurogon 保護を有効にすると、自動起動が有効なユーザーアプリが自動で追加されます。</string>
     <string name="scan_fcm_apps">FCM アプリをスキャン</string>
     <string name="collapse_fcm_apps">アプリ一覧を閉じる</string>
     <string name="open_autostart_manager">HyperOS でまとめて設定</string>

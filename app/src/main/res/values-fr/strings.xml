@@ -39,6 +39,7 @@
     <string name="present_yes">Élément requis présent : oui</string>
     <string name="present_no">Élément requis présent : non</string>
     <string name="notification_mode_foreground">Mode arrière-plan : service au premier plan</string>
+    <string name="notification_mode_hidden">Mode arrière-plan : service au premier plan (notification masquée par le système)</string>
     <string name="notification_mode_quiet">Mode arrière-plan : silencieux</string>
 
     <string name="saved">Configuration enregistrée</string>

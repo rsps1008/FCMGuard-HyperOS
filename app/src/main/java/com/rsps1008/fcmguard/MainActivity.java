@@ -30,6 +30,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Switch;
@@ -41,14 +42,10 @@ import java.util.List;
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends Activity {
+    public interface AurogonActionCallback { void onComplete(boolean success, String detail); }
     private static final String[] LANGUAGE_CODES = {
             "system", "en", "zh-CN", "zh-TW", "fr", "ja", "ko", "es", "pt", "de", "ru"
     };
-    private static final String[] LANGUAGE_BUTTON_LABELS = {
-            "Language", "语言", "語言", "Langue", "言語", "언어", "Idioma", "Idioma", "Sprache", "Язык"
-    };
-    private static final long LANGUAGE_LABEL_INTERVAL_MS = 2200L;
-
     private NightProtectionUi nightUi;
     private EditText keyEdit;
     private EditText itemEdit;
@@ -57,7 +54,7 @@ public class MainActivity extends Activity {
     private TextView currentValueText;
     private TextView fcmAppsStatusText;
     private LinearLayout fcmAppsContainer;
-    private Button languageButton;
+    private ImageButton languageButton;
     private Button scanFcmAppsBtn;
     private Button shizukuAccessBtn;
     private TextView shizukuAccessText;
@@ -69,6 +66,7 @@ public class MainActivity extends Activity {
     private boolean suppressAppearanceCallbacks = false;
     private boolean notificationAccessPending = false;
     private boolean fcmListExpanded = false;
+    private boolean pendingAurogonShizukuGrant = false;
     private List<FcmAppScanner.AppEntry> scannedFcmApps;
     private ShizukuAutostartManager shizukuAutostartManager;
 
@@ -78,24 +76,20 @@ public class MainActivity extends Activity {
                 updateShizukuAccessUi();
                 if (grantResult == PackageManager.PERMISSION_GRANTED) {
                     toast(getString(R.string.shizuku_access_granted));
+                    if (pendingAurogonShizukuGrant) {
+                        pendingAurogonShizukuGrant = false;
+                        finishAurogonShizukuSetup();
+                    }
                     if (fcmListExpanded && scannedFcmApps != null && !scannedFcmApps.isEmpty()) {
                         renderFcmAppStatuses();
                     }
                 } else {
+                    if (pendingAurogonShizukuGrant) pendingAurogonShizukuGrant = false;
                     toast(getString(R.string.shizuku_access_denied));
                 }
             };
 
     private final Handler languageAnimationHandler = new Handler(Looper.getMainLooper());
-    private int languageLabelIndex = 0;
-    private boolean languageAnimationRunning = false;
-    private final Runnable languageLabelTicker = new Runnable() {
-        @Override public void run() {
-            if (!languageAnimationRunning || languageButton == null) return;
-            animateToNextLanguageLabel();
-            languageAnimationHandler.postDelayed(this, LANGUAGE_LABEL_INTERVAL_MS);
-        }
-    };
     private final Runnable notificationAccessFollowUp = new Runnable() {
         @Override public void run() {
             if (!notificationAccessPending || !hasWindowFocus()) return;
@@ -138,7 +132,6 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         configureFullEdgeToEdge();
-        startLanguageButtonAnimation();
         nightUi.resume();
         reconcileProtectionService();
         refreshStatus(null);
@@ -149,7 +142,6 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onPause() {
-        stopLanguageButtonAnimation();
         if (nightUi != null) nightUi.pause();
         super.onPause();
     }
@@ -199,7 +191,6 @@ public class MainActivity extends Activity {
     }
 
     private void setupLanguagePicker() {
-        languageButton.setText(LANGUAGE_BUTTON_LABELS[0]);
         languageButton.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= 33) {
                 try {
@@ -213,45 +204,6 @@ public class MainActivity extends Activity {
             }
             showLegacyLanguagePicker();
         });
-    }
-
-    private void startLanguageButtonAnimation() {
-        if (languageButton == null || languageAnimationRunning) return;
-        languageAnimationRunning = true;
-        languageAnimationHandler.removeCallbacks(languageLabelTicker);
-        languageAnimationHandler.postDelayed(languageLabelTicker, LANGUAGE_LABEL_INTERVAL_MS);
-    }
-
-    private void stopLanguageButtonAnimation() {
-        languageAnimationRunning = false;
-        languageAnimationHandler.removeCallbacks(languageLabelTicker);
-        if (languageButton != null) {
-            languageButton.animate().cancel();
-            languageButton.setAlpha(1f);
-            languageButton.setTranslationY(0f);
-        }
-    }
-
-    private void animateToNextLanguageLabel() {
-        if (languageButton == null) return;
-        languageLabelIndex = (languageLabelIndex + 1) % LANGUAGE_BUTTON_LABELS.length;
-        languageButton.animate().cancel();
-        languageButton.animate()
-                .alpha(0f)
-                .translationY(-dp(3))
-                .setDuration(140L)
-                .withEndAction(() -> {
-                    if (!languageAnimationRunning || languageButton == null) return;
-                    languageButton.setText(LANGUAGE_BUTTON_LABELS[languageLabelIndex]);
-                    languageButton.setAlpha(0f);
-                    languageButton.setTranslationY(dp(3));
-                    languageButton.animate()
-                            .alpha(1f)
-                            .translationY(0f)
-                            .setDuration(180L)
-                            .start();
-                })
-                .start();
     }
 
     private void showLegacyLanguagePicker() {
@@ -645,8 +597,85 @@ public class MainActivity extends Activity {
 
     private void reconcileProtectionService() {
         NightFcmProtection night = NightFcmProtection.get(this);
-        if (SettingsGuard.isProtectionEnabled(this) || night.isEnabled()) startProtectionService();
+        if (SettingsGuard.isProtectionEnabled(this) || night.isEnabled() ||
+                (AurogonProtection.isAutoSyncEnabled(this)
+                        && AurogonProtection.hasSecureSettingsPermission(this))) startProtectionService();
         else if (night.isInitialized()) stopService(new Intent(this, GuardService.class));
+    }
+
+    public void setupAurogonPermission() {
+        pendingAurogonShizukuGrant = true;
+        if (!ShizukuAutostartManager.isBinderReady()) {
+            pendingAurogonShizukuGrant = false;
+            if (!openShizukuApp()) toast(getString(R.string.aurogon_shizuku_unavailable));
+            else toast(getString(R.string.aurogon_start_shizuku_first));
+            return;
+        }
+        if (!ShizukuAutostartManager.hasPermission()) {
+            ShizukuAutostartManager.RequestState state = ShizukuAutostartManager.requestPermission();
+            if (state == ShizukuAutostartManager.RequestState.REQUESTED) return;
+            if (state == ShizukuAutostartManager.RequestState.GRANTED) finishAurogonShizukuSetup();
+            else {
+                pendingAurogonShizukuGrant = false;
+                toast(getString(state == ShizukuAutostartManager.RequestState.DENIED
+                        ? R.string.shizuku_access_denied : R.string.aurogon_shizuku_unavailable));
+            }
+            return;
+        }
+        finishAurogonShizukuSetup();
+    }
+
+    private void finishAurogonShizukuSetup() {
+        if (AurogonProtection.hasSecureSettingsPermission(this)) {
+            toast(getString(R.string.aurogon_secure_settings_granted));
+            reconcileProtectionService();
+            refreshStatus(null);
+            if (nightUi != null) nightUi.refresh();
+            return;
+        }
+        if (shizukuAutostartManager == null) {
+            toast(getString(R.string.aurogon_shizuku_unavailable));
+            return;
+        }
+        shizukuAutostartManager.grantSecureSettings(getPackageName(), (success, detail) -> {
+            boolean verified = success && AurogonProtection.hasSecureSettingsPermission(this);
+            toast(verified ? getString(R.string.aurogon_secure_settings_granted)
+                    : getString(R.string.aurogon_secure_settings_failed, detail));
+            refreshStatus(null);
+            if (verified) reconcileProtectionService();
+            if (nightUi != null) nightUi.refresh();
+        });
+    }
+
+    public void clearAurogonSetting(AurogonActionCallback callback) {
+        if (!AurogonProtection.hasSecureSettingsPermission(this)) {
+            callback.onComplete(false, getString(R.string.aurogon_status_permission));
+            return;
+        }
+        new Thread(() -> {
+            AurogonProtection.ClearResult result = AurogonProtection.clearSettings(this);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                refreshStatus(null);
+                if (nightUi != null) nightUi.refresh();
+                callback.onComplete(result.verified, result.error);
+            });
+        }, "fcmguard-aurogon-clear").start();
+    }
+
+    public void syncAurogonNow(AurogonActionCallback callback) {
+        if (!AurogonProtection.hasSecureSettingsPermission(this)) {
+            callback.onComplete(false, getString(R.string.aurogon_status_permission));
+            return;
+        }
+        new Thread(() -> {
+            AurogonProtection.SyncOutcome result = AurogonProtection.syncCurrentAutostartApps(this);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                refreshStatus(null);
+                if (nightUi != null) nightUi.refresh();
+                callback.onComplete(result.verified, result.verified
+                        ? String.valueOf(result.packageCount) : result.error);
+            });
+        }, "fcmguard-aurogon-sync-now").start();
     }
 
     private void startProtectionService() {
@@ -792,17 +821,26 @@ public class MainActivity extends Activity {
                 present ? R.color.status_value_green_bg : R.color.status_value_red_bg
         );
         status.append('\n');
-        boolean visibleForeground = notification && enabled && GuardService.canShowPersistentNotification(this);
+        boolean foregroundMode = notification && enabled;
+        boolean notificationVisible = foregroundMode && GuardService.canShowPersistentNotification(this);
+        int notificationMode = !foregroundMode
+                ? R.string.notification_mode_quiet
+                : notificationVisible ? R.string.notification_mode_foreground
+                : R.string.notification_mode_hidden;
         appendStatusValueLine(
                 status,
-                visibleForeground
-                        ? getString(R.string.notification_mode_foreground)
-                        : getString(R.string.notification_mode_quiet),
-                visibleForeground ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
+                getString(notificationMode),
+                notificationVisible ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
         );
+        status.append('\n');
+        boolean secureSettings = AurogonProtection.hasSecureSettingsPermission(this);
+        appendStatusValueLine(status,
+                getString(secureSettings ? R.string.status_secure_settings_granted : R.string.status_secure_settings_missing),
+                secureSettings ? R.color.status_value_green_bg : R.color.status_value_yellow_bg);
         statusText.setText(status);
         currentValueText.setText(buildWhitelistValue(current));
         permissionBtn.setVisibility(canWrite ? View.GONE : View.VISIBLE);
+        findViewById(R.id.permissionCard).setVisibility(canWrite ? View.GONE : View.VISIBLE);
     }
 
     private void appendStatusValueLine(SpannableStringBuilder out, String text, int backgroundColorRes) {
@@ -857,7 +895,7 @@ public class MainActivity extends Activity {
             if (packageName.isEmpty()) continue;
             if (out.length() > 0) out.append(", ");
             int start = out.length();
-            out.append(packageName);
+            out.append(getApplicationLabel(packageName));
             int end = out.length();
 
             int colorRes = packageChipColor(packageName);
@@ -877,6 +915,16 @@ public class MainActivity extends Activity {
             }
         }
         return out;
+    }
+
+    private CharSequence getApplicationLabel(String packageName) {
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(packageName, 0);
+            CharSequence label = getPackageManager().getApplicationLabel(info.applicationInfo);
+            if (label != null && !label.toString().trim().isEmpty()) return label.toString().trim();
+        } catch (Throwable ignored) {}
+        // Keep unknown or uninstalled entries identifiable when no app label exists.
+        return packageName;
     }
 
     private int packageChipColor(String packageName) {

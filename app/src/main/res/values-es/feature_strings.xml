@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fcm_apps_title">Asistente de apps FCM</string>
-    <string name="fcm_apps_summary">Detecta apps instaladas que declaran componentes estándar de recepción FCM/GCM y verifica su estado de inicio automático cuando HyperOS lo permite.</string>
+    <string name="fcm_apps_summary">Detecta apps instaladas que declaran componentes estándar de recepción FCM/GCM y verifica su inicio automático cuando HyperOS lo permite. Con la protección Aurogon activada, las apps de usuario con inicio automático se añaden automáticamente.</string>
     <string name="scan_fcm_apps">Buscar apps FCM</string>
     <string name="collapse_fcm_apps">Ocultar lista de apps</string>
     <string name="open_autostart_manager">Configurar todo en HyperOS</string>

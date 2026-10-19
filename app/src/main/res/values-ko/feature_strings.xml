@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fcm_apps_title">FCM 앱 도우미</string>
-    <string name="fcm_apps_summary">표준 FCM/GCM 수신 구성요소를 선언한 설치 앱을 감지하고 HyperOS가 허용하는 경우 자동 시작 상태도 확인합니다.</string>
+    <string name="fcm_apps_summary">표준 FCM/GCM 수신 구성요소가 있는 앱을 감지하고 HyperOS가 허용하면 자동 시작 상태도 확인합니다. Aurogon 보호를 켜면 자동 시작이 켜진 사용자 앱이 자동으로 추가됩니다.</string>
     <string name="scan_fcm_apps">FCM 앱 검색</string>
     <string name="collapse_fcm_apps">앱 목록 접기</string>
     <string name="open_autostart_manager">HyperOS에서 일괄 설정</string>
