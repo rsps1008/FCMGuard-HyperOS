@@ -18,7 +18,7 @@ android {
         // Shizuku still requires minSdk 23; Gradle warns about the deliberate target/min gap.
         targetSdk 22
         versionCode 31
-        versionName "1.6.0"
+        versionName "1.6.1"
     }
 
     signingConfigs {
