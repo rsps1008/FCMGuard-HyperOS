@@ -58,7 +58,9 @@ FCM Guard+ 的应用 ID 为 `com.rsps1008.fcmguard`。1.6.2 版的 versionCode �
 
 报告也整理用户实测条件、`miui.os.Build` 区域判定线索、Aurogon 设置差异及证据限制。ROM 样本位于 [`docs/rom-samples/miui-services/`](docs/rom-samples/miui-services/)。结果只适用于所分析的版本，其他中国版／国际版 ROM 可能不同。
 
-### 上游研究致谢
+### 原项目与上游研究致谢
+
+本项目由 [ReedGAOOO/FCMGuard-HyperOS](https://github.com/ReedGAOOO/FCMGuard-HyperOS) 延续而来，感谢 ReedGAOOO 创建并开源原始 FCMGuard 项目，为本项目持续维护和开发提供起点。目前版本由本项目维护者继续更新。
 
 感谢 [dingwen07/hyperos-fcm-fix](https://github.com/dingwen07/hyperos-fcm-fix) 公开其 HyperOS GMS／FCM／Greezer 实机调查与系统代码分析。该项目的研究记录了 GMS 被 Greezer 冻结的路径、`MILLET_NO_RESTRICT_APP` 的作用边界，以及 HyperOS 4 夜间冻结的相关证据，为本项目进一步比较 ROM 行为提供重要参考。
 
