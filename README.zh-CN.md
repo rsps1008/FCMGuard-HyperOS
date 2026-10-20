@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/icon.svg" width="180" alt="FCM Guard 图标" />
+  <img src="docs/icon.svg" width="180" alt="FCM Guard+ 图标" />
 </p>
 
-# FCM Guard for HyperOS
+# FCM Guard+ for HyperOS
 
 **为中国版 HyperOS 设计的 FCM 后台防护工具。** 通过保留小米系统的 GMS 免限制项目，并管理部分 Aurogon 规则，降低 Google Play 服务后台冻结造成推送延迟或中断的机会。
 
@@ -16,7 +16,7 @@
 
 ## 项目方向
 
-FCM Guard 是独立的 Android App，重点是使用普通 App 可用的系统设置权限，维护 GMS 的重要后台设置，并提供可选的 HyperOS 4 夜间防护及 Aurogon 管理功能。核心 GMS 白名单修复不依赖 Root、常驻 ADB 或 Shizuku。
+FCM Guard+ 是独立的 Android App，重点是使用普通 App 可用的系统设置权限，维护 GMS 的重要后台设置，并提供可选的 HyperOS 4 夜间防护及 Aurogon 管理功能。核心 GMS 白名单修复不依赖 Root、常驻 ADB 或 Shizuku。
 
 本项目采用保守的维护方式：保留设置中已有的其他套件、不在状态正常时重复写入、将各项防护分别开关，并在可行时读回设置确认结果。小米私有设置和广播属于厂商接口，功能会随 ROM 版本而异。
 
@@ -34,12 +34,12 @@ FCM Guard 是独立的 Android App，重点是使用普通 App 可用的系统�
 ## 开始使用
 
 1. 从 [GitHub Releases](https://github.com/rsps1008/FCMGuard-HyperOS/releases/latest) 下载并安装 APK。
-2. 在系统设置中允许 FCM Guard“修改系统设置”，再按“立即修复”确认 GMS 已在免限制清单中。
-3. 开启“自动保护”。若希望服务在后台较稳定地运行，请根据 HyperOS 指引为 FCM Guard 开启自启动，并选择合适的电池后台策略。
+2. 在系统设置中允许 FCM Guard+“修改系统设置”，再按“立即修复”确认 GMS 已在免限制清单中。
+3. 开启“自动保护”。若希望服务在后台较稳定地运行，请根据 HyperOS 指引为 FCM Guard+ 开启自启动，并选择合适的电池后台策略。
 4. 只启用需要的 Aurogon 或夜间防护功能。Aurogon FCM 规则需先完成卡片中的权限设置；闹钟清单与夜间防护需要“修改系统设置”权限。
 5. 若只有单一 App 收讯延迟，请另外检查该 App 在 HyperOS 中的自启动、电池限制和通知设置。
 
-FCM Guard 的应用 ID 为 `com.rsps1008.fcmguard`。1.6.2 版的 versionCode 为 32。Android 会把不同应用 ID 视为不同 App，因此旧版权限和 App 内设置不会自动迁移。若要移除旧版，请先关闭旧版夜间防护并完成清理程序。
+FCM Guard+ 的应用 ID 为 `com.rsps1008.fcmguard`。1.6.2 版的 versionCode 为 32。Android 会把不同应用 ID 视为不同 App，因此旧版权限和 App 内设置不会自动迁移。若要移除旧版，请先关闭旧版夜间防护并完成清理程序。
 
 ## 各项设置的作用
 
@@ -62,20 +62,20 @@ FCM Guard 的应用 ID 为 `com.rsps1008.fcmguard`。1.6.2 版的 versionCode �
 
 感谢 [dingwen07/hyperos-fcm-fix](https://github.com/dingwen07/hyperos-fcm-fix) 公开其 HyperOS GMS／FCM／Greezer 实机调查与系统代码分析。该项目的研究记录了 GMS 被 Greezer 冻结的路径、`MILLET_NO_RESTRICT_APP` 的作用边界，以及 HyperOS 4 夜间冻结的相关证据，为本项目进一步比较 ROM 行为提供重要参考。
 
-FCM Guard 是另一个独立实现，功能范围、权限策略与代码均自行维护；本项目引用其公开研究作为技术参考，没有把对方的代码作为本项目代码。请同时阅读[上游调查文件](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos-gms-fcm-greezer-investigation.md)与[HyperOS 4 夜间调查](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md)。
+FCM Guard+ 是另一个独立实现，功能范围、权限策略与代码均自行维护；本项目引用其公开研究作为技术参考，没有把对方的代码作为本项目代码。请同时阅读[上游调查文件](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos-gms-fcm-greezer-investigation.md)与[HyperOS 4 夜间调查](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md)。
 
 ## 权限与隐私
 
 核心白名单修复、闹钟允许清单与夜间防护使用用户授予的“修改系统设置”能力。Aurogon FCM 规则需要额外 `WRITE_SECURE_SETTINGS`。自启动修改是可选功能，需要明确授权 Shizuku；App 不会自行开启 USB 或无线调试。
 
-FCM Guard 不使用 Root、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取，也不要求 `QUERY_ALL_PACKAGES`。App 扫描使用受限的套件可见性查询。
+FCM Guard+ 不使用 Root、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取，也不要求 `QUERY_ALL_PACKAGES`。App 扫描使用受限的套件可见性查询。
 
 ## 支持与限制
 
 - 需要 Android 6.0（API 23）或更新版本，以及已安装且可正常使用的 Google Play 服务。
 - 主要针对 Xiaomi／Redmi／POCO 中国版 HyperOS；不同机型、系统版本及 PowerKeeper 版本可能有不同结果。
 - `MILLET_NO_RESTRICT_APP`、Aurogon 规则、闹钟清单及夜间策略均为小米私有接口，系统更新可能改变其格式或行为。
-- 自动修复依赖 FCM Guard 进程能够运行。省电策略、强行停止、厂商后台限制或系统调度都可能中断服务。
+- 自动修复依赖 FCM Guard+ 进程能够运行。省电策略、强行停止、厂商后台限制或系统调度都可能中断服务。
 - 写入成功或读回一致只代表设置值符合预期，不等于已验证系统解除冻结、FCM socket 持续连接，或接收 App 已显示通知。
 - 夜间防护仍属实验性；需以目标手机的实际 ROM、长时间熄屏与推送测试验证耗电及效果。
 

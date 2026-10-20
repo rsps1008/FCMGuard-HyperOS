@@ -1,43 +1,33 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
 
-    <!-- Square source artwork. Launcher masking/cropping is handled by the OS. -->
+    <!-- Transparent outside the shield; retain navy only inside its outline. -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M0,0h108v108h-108z" />
+        android:pathData="M256,48 L426,125 L426,223 C426,330 366,399 256,456 C146,399 86,330 86,223 L86,125 Z" />
+    <path
+        android:fillColor="#08224B"
+        android:pathData="M256,69 L408,138 L408,223 C408,318 352,380 256,435 C160,380 104,318 104,223 L104,138 Z" />
 
-    <!-- Centered shield with a wider blue protective rim. -->
+    <!-- Firebase-inspired flame in the orange palette of the selected preview. -->
     <path
-        android:fillColor="#4285F4"
-        android:pathData="M54,14 L86,29 L86,51 C86,71 74,84 54,94 C34,84 22,71 22,51 L22,29 Z" />
+        android:fillColor="#FF8A00"
+        android:pathData="M234,123 C219,160 198,207 181,254 C156,323 187,358 256,389 C320,359 350,332 344,308 C336,276 311,232 288,196 L274,252 C265,215 249,161 234,123 Z" />
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M234,123 C219,160 198,207 181,254 C156,323 187,358 256,389 L256,342 C229,319 216,287 220,254 C222,221 235,178 234,123 Z" />
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M288,196 C302,225 329,269 338,302 C349,341 318,369 256,390 C235,380 215,367 203,352 L270,278 L274,252 Z" />
 
-    <!-- Inner Google-inspired color fields. -->
+    <!-- Red notification bubble with a white 1. -->
     <path
-        android:fillColor="#FBBC04"
-        android:pathData="M54,22 L31,33 L31,50 C31,66 40,76 54,85 Z" />
-    <path
-        android:fillColor="#EA4335"
-        android:pathData="M54,22 L77,33 L77,45 L54,37 Z" />
-    <path
-        android:fillColor="#34A853"
-        android:pathData="M54,37 L77,45 L77,50 C77,66 68,76 54,85 Z" />
-
-    <!-- Bell, slightly above geometric center so the whole symbol reads optically centered. -->
+        android:fillColor="#FF293E"
+        android:pathData="M340,137 C361,137 378,154 378,175 C378,196 361,213 340,213 C319,213 302,196 302,175 C302,154 319,137 340,137 Z" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,37 C46.2,37 41.2,43.1 41.2,50.8 L41.2,58.2 L36.8,63.7 C36.2,64.5 36.8,65.7 37.9,65.7 L70.1,65.7 C71.2,65.7 71.8,64.5 71.2,63.7 L66.8,58.2 L66.8,50.8 C66.8,43.1 61.8,37 54,37 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M49.2,69 C49.9,73 51.8,75.2 54,75.2 C56.2,75.2 58.1,73 58.8,69 Z" />
-
-    <!-- Symmetric FCM signal arcs. -->
-    <path
-        android:fillColor="#4285F4"
-        android:pathData="M34.9,45.7 C31.8,49.9 31.8,55.6 34.9,59.8 L38.8,56.9 C37,54.4 37,51.1 38.8,48.6 Z" />
-    <path
-        android:fillColor="#4285F4"
-        android:pathData="M73.1,45.7 L69.2,48.6 C71,51.1 71,54.4 69.2,56.9 L73.1,59.8 C76.2,55.6 76.2,49.9 73.1,45.7 Z" />
+        android:pathData="M334,157 L345,151 L352,151 L352,199 L340,199 L340,167 L334,170 Z" />
 </vector>

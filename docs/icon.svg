@@ -1,13 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-labelledby="title desc">
-  <title id="title">FCM Guard icon</title>
-  <desc id="desc">A centered blue shield with Google-inspired color fields and a white notification bell.</desc>
-  <rect width="108" height="108" fill="#ffffff"/>
-  <path fill="#4285F4" d="M54 14 86 29v22c0 20-12 33-32 43-20-10-32-23-32-43V29Z"/>
-  <path fill="#FBBC04" d="M54 22 31 33v17c0 16 9 26 23 35Z"/>
-  <path fill="#EA4335" d="M54 22 77 33v12l-23-8Z"/>
-  <path fill="#34A853" d="m54 37 23 8v5c0 16-9 26-23 35Z"/>
-  <path fill="#fff" d="M54 37c-7.8 0-12.8 6.1-12.8 13.8v7.4l-4.4 5.5c-.6.8 0 2 1.1 2h32.2c1.1 0 1.7-1.2 1.1-2l-4.4-5.5v-7.4C66.8 43.1 61.8 37 54 37Z"/>
-  <path fill="#fff" d="M49.2 69c.7 4 2.6 6.2 4.8 6.2s4.1-2.2 4.8-6.2Z"/>
-  <path fill="#4285F4" d="M34.9 45.7c-3.1 4.2-3.1 9.9 0 14.1l3.9-2.9c-1.8-2.5-1.8-5.8 0-8.3Z"/>
-  <path fill="#4285F4" d="m73.1 45.7-3.9 2.9c1.8 2.5 1.8 5.8 0 8.3l3.9 2.9c3.1-4.2 3.1-9.9 0-14.1Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FCM Guard+ app icon</title>
+  <desc id="desc">A white shield with a Firebase-inspired orange flame and a red notification badge showing one.</desc>
+  <path fill="#fff" d="M256 48 426 125v98c0 107-60 176-170 233C146 399 86 330 86 223v-98Z"/>
+  <path fill="#08224b" d="m256 69 152 69v85c0 95-56 157-152 212-96-55-152-117-152-212v-85Z"/>
+  <path fill="#ff8a00" d="M234 123c-15 37-36 84-53 131-25 69 6 104 75 135 64-30 94-57 88-81-8-32-33-76-56-112l-14 56c-9-37-25-91-40-129Z"/>
+  <path fill="#ff6d00" d="M234 123c-15 37-36 84-53 131-25 69 6 104 75 135v-47c-27-23-40-55-36-88 2-33 15-76 14-131Z"/>
+  <path fill="#ffb300" d="M288 196c14 29 41 73 50 106 11 39-20 67-82 88-21-10-41-23-53-38l67-74 4-26Z"/>
+  <circle cx="340" cy="175" r="38" fill="#ff293e"/>
+  <path fill="#fff" d="m334 157 11-6h7v48h-12v-32l-6 3Z"/>
 </svg>
