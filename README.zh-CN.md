@@ -1,7 +1,5 @@
 <p align="center">
-
-1.6.2 版本使用应用包名 `com.rsps1008.fcmguard`（versionCode 32）。Android 会将其视为不同于旧包名的独立应用，旧应用的设置、权限及 Shizuku 授权不会自动转移。移除旧应用前，请先停用其夜间保护并完成待清理操作。
-  <a href="README.md">English</a> · <a href="README.zh-CN.md"><strong>简体中文</strong></a>
+  <a href="README.md">繁體中文</a> · <a href="README.zh-CN.md"><strong>简体中文</strong></a>
 </p>
 
 <p align="center">
@@ -10,245 +8,86 @@
 
 # FCM Guard for HyperOS
 
-**一个轻量、免 Root 的 HyperOS 3 后台守护工具，用于让 Google Play 服务持续保留在小米免限制名单中，从而提升 FCM 推送可靠性。**
+**为中国版 HyperOS 设计的 FCM 后台防护工具。** 通过保留小米系统的 GMS 免限制项目，并管理部分 Aurogon 规则，降低 Google Play 服务后台冻结造成推送延迟或中断的机会。
 
-**适用范围：** 中国大陆销售、运行 **HyperOS 3 中国版 ROM** 的 Xiaomi / Redmi / POCO 手机，且 Google Play 服务已经正常安装并可使用。
+[下载最新版本](https://github.com/rsps1008/FCMGuard-HyperOS/releases/latest) · [查看研究报告](docs/powerkeeper-os3-os4-fcm-investigation.md)
 
-<p align="center">
-  <a href="https://github.com/ReedGAOOO/FCMGuard-HyperOS/releases/latest/download/FCMGuard-HyperOS.apk"><strong>直接下载最新版 APK</strong></a>
-  ·
-  <a href="https://github.com/ReedGAOOO/FCMGuard-HyperOS/releases/latest">查看最新 Release</a>
-</p>
+> 本工具不能保证每个 App 的通知都即时送达。推送还会受到接收 App 自身的自启动、电池策略、网络以及 HyperOS 后台政策影响。
 
-## 亮点
+## 项目方向
 
-- **默认低权限** — MILLET 与 Game Allowlist 保护使用用户可授予的“修改系统设置”权限。可选 Aurogon Global 同步通过现有 Shizuku 服务一次性授予 `WRITE_SECURE_SETTINGS`，不需要通过 ADB 授权。
-- **对金融 App 更友好** — 整体保持低权限设计，避免引入更容易触发安全敏感 App 风控的高权限方案。
-- **低后台耗电** — 主要采用精确事件监听，30 分钟兜底检查仅在进程内运行，不会主动唤醒休眠手机。
-- **只在必要时重连** — 仅在真正执行白名单修复后，或用户手动点击时发送 FCM/MCS 重连请求。
-- **常驻通知可选** — 前台模式使用可见但静音的通知渠道提升进程存活率，也可切换为静默纯后台模式。
-- **FCM App 助手** — 扫描可能依赖 Firebase/GCM 的 App；当 HyperOS 允许读取厂商 AppOps 时，会只读显示自启动状态，并在用户从系统设置返回后自动复查。
-- **原生深色模式** — 支持 跟随系统 / 浅色 / 深色，默认 **跟随系统**。
-- **10 种主流语言** — 英语、简体中文、繁体中文、法语、日语、韩语、西班牙语、葡萄牙语、德语、俄语，接入 Android 原生应用语言机制。
-- **小屏适配** — 响应式布局自动检查 320–480dp 宽度，包含 Xiaomi 17 级别的 393dp profile。
+FCM Guard 是独立的 Android App，重点是使用普通 App 可用的系统设置权限，维护 GMS 的重要后台设置，并提供可选的 HyperOS 4 夜间防护及 Aurogon 管理功能。核心 GMS 白名单修复不依赖 Root、常驻 ADB 或 Shizuku。
 
-## 快速使用
+本项目采用保守的维护方式：保留设置中已有的其他套件、不在状态正常时重复写入、将各项防护分别开关，并在可行时读回设置确认结果。小米私有设置和广播属于厂商接口，功能会随 ROM 版本而异。
 
-1. 直接从 **GitHub Releases** 下载并安装最新版 APK。
-2. 打开 FCM Guard，授予 **修改系统设置** 权限。
-3. 点击一次 **立即修复**。
-4. 开启 **自动保护**。
-5. 在 HyperOS 中为 FCM Guard 开启 **自启动**，并将电池策略设为 **无限制**。
-6. 如果最看重后台可靠性，建议保持 **常驻通知** 开启。如果 Android / HyperOS 禁用了 FCM Guard 通知，App 会引导进入系统通知设置，使前台通知真正可见。
-7. 可选：使用 **FCM App 助手** 扫描可能依赖 FCM 的 App。若当前 HyperOS 允许读取自启动状态，列表会标记 已开启 / 部分开启 / 未开启 / 未知，并在你从 **在 HyperOS 中统一配置** 返回后自动重新检查；若 ROM 不允许读取，FCM Guard 会明确显示“未知 / 不可读取”，而不是猜测。
-8. 可选：点击 **打开 FCM 诊断**，进入 Google Play 服务诊断界面，检查 `mtalk.google.com:5228` 连接状态。
-9. 如果只有某个 App 仍出现通知延迟，而其他 FCM App 正常，请单独调整该 App 的后台策略。对于 **WhatsApp** 等即时通讯 App，建议设置为：**WhatsApp → 电池优化 / 省电策略 → 无限制（No restrictions）**；若系统提供自启动选项，也建议为该 App 开启 **自启动**。
-10. 为减少金融 App 的兼容风险，除非确有需要，建议保持开发者选项 / USB 调试 / 无线调试关闭。
+## 功能
 
-> FCM Guard 主要针对中国版 HyperOS 3：Google 服务本身可以正常使用，但 PowerKeeper / Greezer 仍可能在后台限制 GMS，造成 FCM 推送延迟或中断。
+- **GMS 免限制保护**：检查 `Settings.System.MILLET_NO_RESTRICT_APP`，只在缺少 `com.google.android.gms` 时加入，并保留原有清单项目。
+- **自动保护**：监听目标设置变化，并提供 30 分钟的进程内检查。服务停止或手机重启后能否恢复，仍取决于 Android／HyperOS 调度与用户设置。
+- **Aurogon FCM 防护**：选择性管理 `Settings.Global.aurogon_enable` 中的 FCM 广播规则，扫描符合条件的 FCM App，并保留非本功能管理的已有规则。需要另外取得 `WRITE_SECURE_SETTINGS`；自动授权设置会在 App 内清楚引导。
+- **Aurogon 闹钟防护**：管理 `Settings.System.cloud_aurogon_alarm_allow_list`。同步时加入 GMS、符合条件的 FCM App，并保留 ROM 内置的三个套件及其他已有项目；可还原为仅含内置项目的默认清单。
+- **HyperOS 4 夜间防护（实验性）**：管理 `com.miui.game.allowlist` 中与 GMS 有关的项目，降低特定中国版 HyperOS 4 夜间冻结路径的影响机会。此设置可能全天有效并增加后台活动；停用时会根据记录的项目所有权清理。
+- **FCM App 助手**：根据 FCM/GCM manifest 接收组件寻找可能使用 FCM 的 App，并在 ROM 允许时只读显示 Xiaomi 自启动状态。无法确认时会显示未知，不会猜测。
+- **可选自启动控制**：用户明确授权后，可通过 Shizuku 修改个别 App 的 Xiaomi 自启动项目；一般扫描仍为只读。
+- **轻量监控**：设置变更监听采用防抖处理；周期检查在 App 进程内执行，不使用重复精确闹钟或 WakeLock。
 
----
+## 开始使用
 
-# 技术原理
+1. 从 [GitHub Releases](https://github.com/rsps1008/FCMGuard-HyperOS/releases/latest) 下载并安装 APK。
+2. 在系统设置中允许 FCM Guard“修改系统设置”，再按“立即修复”确认 GMS 已在免限制清单中。
+3. 开启“自动保护”。若希望服务在后台较稳定地运行，请根据 HyperOS 指引为 FCM Guard 开启自启动，并选择合适的电池后台策略。
+4. 只启用需要的 Aurogon 或夜间防护功能。Aurogon FCM 规则需先完成卡片中的权限设置；闹钟清单与夜间防护需要“修改系统设置”权限。
+5. 若只有单一 App 收讯延迟，请另外检查该 App 在 HyperOS 中的自启动、电池限制和通知设置。
 
-## 核心机制
+FCM Guard 的应用 ID 为 `com.rsps1008.fcmguard`。1.6.2 版的 versionCode 为 32。Android 会把不同应用 ID 视为不同 App，因此旧版权限和 App 内设置不会自动迁移。若要移除旧版，请先关闭旧版夜间防护并完成清理程序。
 
-在受影响的 HyperOS 设备上，小米的 PowerKeeper / Greezer 可能重建私有系统设置：
+## 各项设置的作用
 
-```text
-Settings.System.MILLET_NO_RESTRICT_APP
-```
+| 设置 | 管理内容 | 权限与范围 |
+|---|---|---|
+| `MILLET_NO_RESTRICT_APP` | 将 GMS 保留在小米免限制清单 | 用户授予“修改系统设置”；只维护 GMS 项目并保留其他项目 |
+| `aurogon_enable` | Aurogon FCM 广播规则 | 需要 `WRITE_SECURE_SETTINGS`；只更新本功能管理的规则 |
+| `cloud_aurogon_alarm_allow_list` | Aurogon 冻结期间暂存闹钟的允许清单 | 用户授予“修改系统设置”；该清单本身不会阻止 App 冻结 |
+| `com.miui.game.allowlist` | 特定 HyperOS 4 夜间 GMS 防冻结路径 | 用户授予“修改系统设置”；实验性、限 ROM |
 
-如果其中缺少 `com.google.android.gms`，Google Play 服务可能被当作普通后台进程处理，从而导致长期保持的 FCM/MCS 连接被中断。
+“闹钟防护”只影响 Aurogon 是否在 App 冻结时暂存其闹钟，并不代表防止冻结，也不会绕过 WakePath。`aurogon_enable` 广播规则会影响相应 FCM 广播能否按小米规则发送给 App；这与 GMS 的 `MILLET_NO_RESTRICT_APP` 是不同设置。
 
-FCM Guard 会读取当前逗号分隔列表，保留所有已有包名，仅在缺失时追加 `com.google.android.gms`。
+## HyperOS 3 与 HyperOS 4 研究
 
-```mermaid
-%%{init: {'theme':'base','themeVariables': {'background':'#ffffff','primaryColor':'#ffffff','primaryTextColor':'#000000','primaryBorderColor':'#000000','lineColor':'#000000'}}}%%
-flowchart TD
-    A[监听 MILLET_NO_RESTRICT_APP] --> B[读取当前值]
-    B --> C{是否包含 GMS?}
-    C -- 是 --> D[不做任何写入]
-    C -- 否 --> E[保留现有包名]
-    E --> F[追加 com.google.android.gms]
-    F --> G[仅写入一次]
-    G --> H[best-effort FCM 重连]
-    classDef bw fill:#ffffff,stroke:#000000,color:#000000,stroke-width:1.5px;
-    class A,B,C,D,E,F,G,H bw;
-```
+本项目附有根据两份用户提供的 `miui-services.jar`、PowerKeeper 相关分析及设备观察整理的[研究报告](docs/powerkeeper-os3-os4-fcm-investigation.md)。目前的分析显示，OS3 与 OS4 的后台限制路径并不完全相同；部分 HyperOS 4 版本另有夜间冻结 GMS 的程序路径。静态代码只能说明 ROM 中存在相关机制，不能单独证明特定手机某次漏消息就是该路径所致。
 
-## 为什么使用 `targetSdk 22`
+报告也整理用户实测条件、`miui.os.Build` 区域判定线索、Aurogon 设置差异及证据限制。ROM 样本位于 [`docs/rom-samples/miui-services/`](docs/rom-samples/miui-services/)。结果只适用于所分析的版本，其他中国版／国际版 ROM 可能不同。
 
-FCM Guard 有意保持 `compileSdk 35` + `targetSdk 22`。现代 compile SDK 让项目继续使用当前 Android 构建工具，而旧 target 保留对 Xiaomi 厂商私有 `Settings.System` key 的兼容写入路径，因此可以仅依靠用户授予的 **修改系统设置** 权限完成修复。可选官方 Shizuku 整合需要 `minSdk 23`，因此构建会出现刻意保留的 target/min 警告；这比破坏已验证的 HyperOS 私有设置写入路径更可取。
+### 上游研究致谢
 
-## 低功耗设计
+感谢 [dingwen07/hyperos-fcm-fix](https://github.com/dingwen07/hyperos-fcm-fix) 公开其 HyperOS GMS／FCM／Greezer 实机调查与系统代码分析。该项目的研究记录了 GMS 被 Greezer 冻结的路径、`MILLET_NO_RESTRICT_APP` 的作用边界，以及 HyperOS 4 夜间冻结的相关证据，为本项目进一步比较 ROM 行为提供重要参考。
 
-- 只精确监听 `MILLET_NO_RESTRICT_APP` 对应 URI。
-- 设置变化后约 400 ms 防抖。
-- 使用 30 分钟进程内兜底，而不是高频轮询。
-- 不使用 `AlarmManager`、周期精确闹钟或 WakeLock 进行兜底检查。
-- GMS 已存在时不执行重复写入。
-- 只有真正修复成功或用户主动操作时才发送重连广播。
-
-## 常驻通知
-
-开启常驻通知后，`GuardService` 会作为前台服务运行。当前版本改为独立的 `IMPORTANCE_LOW` 静音通知渠道，因此通知会保持可见，但不会发声或振动。
-
-由于项目仍刻意保持在 Android 13 所要求的 target level 以下，Android 13+ 的通知权限弹窗时机由系统控制。如果通知已经被系统关闭，FCM Guard 会直接引导进入本 App 的系统通知设置页面。
-
-## FCM 诊断
-
-**打开 FCM 诊断** 现在优先启动当前 Google Play 服务使用的 Activity：
-
-```text
-com.google.android.gms/com.google.android.gms.gcm.GcmDiagnostics
-```
-
-同时保留旧版 `GTalkServiceDiagnostics` 作为兼容 fallback，并会最后尝试在 Google Play 服务的可见 Activity 中寻找诊断入口。
-
-## FCM App 助手
-
-扫描器会检查标准 manifest 信号，例如：
-
-```text
-com.google.firebase.MESSAGING_EVENT
-com.google.android.c2dm.intent.RECEIVE
-```
-
-匹配意味着该 App **很可能** 使用 FCM/GCM，但不代表它的每一条通知都一定来自 FCM。
-
-对于检测到的 App，FCM Guard 会尝试**只读**查询 Xiaomi 自启动相关的厂商 AppOps（`10008` 与 `10053`）。如果系统允许可靠读取，界面会显示：
-
-- **已开启** — 两个自启动 AppOps 都是 allow。
-- **部分开启** — 一个 allow，另一个明确为 ignore。
-- **未开启** — 两个都明确为 ignore。
-- **未知** — HyperOS 阻止了查询、返回了无法安全解释的默认 / 厂商状态，或没有暴露可靠结果。
-
-FCM Guard **不会把“未知”当成“未开启”**。如果所有检测到的 App 都只能得到未知状态，逐 App 列表会自动隐藏，只保留检测数量和 **在 HyperOS 中统一配置** 入口，避免展示没有实际帮助的伪状态。用户从 HyperOS 设置页返回后，如果扫描结果仍展开，状态会自动重新读取。
-
-常规 FCM App 扫描不会程序化修改任何其他 App 的自启动状态，也不会引入 Shizuku / Root / ADB 权限。
-
-### 可选 Shizuku 自启动控制
-
-Shizuku 不可用时，点击按钮会先打开已安装的 Shizuku 管理应用；仅在找不到应用或打开失败时，显示原有的不可用提示。打开管理应用不会启动其服务，也不会开启 USB／无线调试。没有可用的 Shizuku 授权时，点击单个应用的自启动状态会打开该应用的系统详情页；已授权时保留原有的开启／关闭操作。
-
-高级用户可在自行安装并启动 Shizuku 后，让 FCM Guard 请求明确授权。授权完成后，直接点选每个扫描到 FCM App 原有的自启动状态：点「已开启」会请求关闭；点「部分开启」、「未开启」或「未知」会请求开启小米自启动的两个 AppOps（`10008`、`10053`）。命令只在短生命周期的 Shizuku user service 中执行，普通应用进程不会获得该身份；随后 FCM Guard 会在 HyperOS 允许时再次读取状态。
-
-此功能完全可选，**不会**开启 USB 调试。非 Root 手机在重启后，仍须由用户使用自己的 ADB 或无线调试会话启动 Shizuku。只有后续读取到预期状态，才会显示为已验证；不支持或无法读取的 ROM 会明确显示未验证结果，并保留跳转 HyperOS 设置的回退方式。
-
-## 单 App 推送仍可能受后台策略影响
-
-FCM Guard 保护的是 **Google Play 服务 / FCM 传输层**，但不会绕过 HyperOS 对每个接收 App 单独施加的后台限制。某些 App——尤其是 **WhatsApp** 这类即时通讯 App——可能把 FCM 用作唤醒 / tickle 信号，之后仍需要自己的进程获得后台执行时间、建立网络连接、同步消息并生成本地通知。
-
-因此，如果 FCM 诊断连接正常、YouTube / X 等其他 App 推送也正常，但只有某个 App 持续延迟，请优先检查该 App 自身的后台策略。对于 WhatsApp，建议：
-
-**WhatsApp → 电池优化 / 省电策略 → 无限制（No restrictions）**
-
-如果当前 HyperOS 版本提供该 App 的 **自启动** 开关，也建议开启。无需把所有 App 都设为无限制，只针对实际出现延迟的 App 调整即可。
-
-## 外观、语言与屏幕适配
-
-- 跟随系统 / 浅色 / 深色三种外观模式。
-- 10 种原生 App 语言：英语、简中、繁中、法语、日语、韩语、西班牙语、葡萄牙语、德语、俄语。
-- compact 与较大宽度分别使用响应式资源参数。
-- CI 自动检查 320、360、393、411、430、480dp 宽度，包括 Hero / Status overlap 与同心圆角几何关系。
+FCM Guard 是另一个独立实现，功能范围、权限策略与代码均自行维护；本项目引用其公开研究作为技术参考，没有把对方的代码作为本项目代码。请同时阅读[上游调查文件](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos-gms-fcm-greezer-investigation.md)与[HyperOS 4 夜间调查](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md)。
 
 ## 权限与隐私
 
-FCM Guard 声明 `WRITE_SETTINGS`、`WRITE_SECURE_SETTINGS`、`RECEIVE_BOOT_COMPLETED`、前台服务 / 通知支持，以及针对 FCM/GCM handler、Google Play 服务和小米安全中心的窄范围 package visibility。普通安装不会获得 `WRITE_SECURE_SETTINGS`。用户可通过 Shizuku 明确请求授予；FCM Guard 会检查 App 权限，并在权限仍不可用时报告失败。
+核心白名单修复、闹钟允许清单与夜间防护使用用户授予的“修改系统设置”能力。Aurogon FCM 规则需要额外 `WRITE_SECURE_SETTINGS`。自启动修改是可选功能，需要明确授权 Shizuku；App 不会自行开启 USB 或无线调试。
 
-FCM Guard 不需要 Root、持续 ADB、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取。Aurogon 同步只在首次授予 `WRITE_SECURE_SETTINGS` 时需要 Shizuku；后续由应用自身读取自启动状态并写入设置。
+FCM Guard 不使用 Root、无障碍、VPN、悬浮窗、设备管理员、账号读取或网络流量抓取，也不要求 `QUERY_ALL_PACKAGES`。App 扫描使用受限的套件可见性查询。
 
-## 局限性
+## 支持与限制
 
-本项目依赖 Xiaomi 当前 HyperOS 的具体实现。未来如果 PowerKeeper / Greezer、私有设置 key、App 管理页面或厂商 AppOps 行为发生变化，本方案可能需要同步调整。FCM 重连、FCM App 识别和自启动状态读取都属于 best-effort，因为 Android 没有向普通第三方 App 提供保证这些厂商私有行为的公开 API。
-
-FCM Guard 只能保护共享的 GMS / FCM 连接，不能保证 HyperOS 一定为每个接收 App 提供足够的后台执行时间和网络权限。对于 WhatsApp 等仍出现延迟的 App，可能仍需要单独设置 **电池优化 → 无限制**。
-
-## 参考与致谢
-
-PowerKeeper / Greezer 行为与 `MILLET_NO_RESTRICT_APP` 修复思路最初由 **HyperOS FCM Fix** 项目进行了系统性调查与公开记录：
-
-- HyperOS FCM Fix（`dingwen07`）：https://github.com/dingwen07/hyperos-fcm-fix
-- 技术调查文档：https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos-gms-fcm-greezer-investigation.md
-
-FCM Guard 是独立实现，设计重点是默认权限尽量少、事件驱动和更低待机后台活动；Shizuku 仅是需明确授权的可选高级控制。本仓库没有复制 HyperOS FCM Fix 的源代码。
+- 需要 Android 6.0（API 23）或更新版本，以及已安装且可正常使用的 Google Play 服务。
+- 主要针对 Xiaomi／Redmi／POCO 中国版 HyperOS；不同机型、系统版本及 PowerKeeper 版本可能有不同结果。
+- `MILLET_NO_RESTRICT_APP`、Aurogon 规则、闹钟清单及夜间策略均为小米私有接口，系统更新可能改变其格式或行为。
+- 自动修复依赖 FCM Guard 进程能够运行。省电策略、强行停止、厂商后台限制或系统调度都可能中断服务。
+- 写入成功或读回一致只代表设置值符合预期，不等于已验证系统解除冻结、FCM socket 持续连接，或接收 App 已显示通知。
+- 夜间防护仍属实验性；需以目标手机的实际 ROM、长时间熄屏与推送测试验证耗电及效果。
 
 ## 构建
 
-GitHub Actions 会自动检查响应式布局并构建签名后的 debug APK。push 到 `main` 时还会自动创建 / 更新对应版本的 GitHub Release；feature branch 可先进行构建验证，再合并发布。
+使用 Android Studio 或在 Windows 环境中使用 JDK 21 构建。项目保留 `targetSdk 22`，以兼容小米私有设置的用户授权路径；构建时出现 `minSdk 23` 高于 `targetSdk 22` 的警告是当前设置的结果。
 
-手机用户建议直接使用固定最新版地址：
+```powershell
+python tools/check_layout_profiles.py
+.\gradlew.bat :app:assembleDebug
+```
 
-**https://github.com/ReedGAOOO/FCMGuard-HyperOS/releases/latest/download/FCMGuard-HyperOS.apk**
+## 许可
 
-由于可选的官方 Shizuku provider 不支持 Android 5.x，本应用需要 Android 6.0（API 23）或更高版本。
-
-## License
-
-MIT License — 见 [LICENSE](LICENSE)。
-
-## HyperOS 4 夜间 FCM 防冻结（实验性）
-
-主画面新增独立、默认关闭的「夜间 FCM 防冻结」卡片，通过普通 App 的
-`WRITE_SETTINGS` 权限操作 `Settings.System["com.miui.game.allowlist"]`；此部分不需要
-Root、Shizuku、持续 ADB 或无障碍服务。Aurogon 卡片有独立开关，默认关闭。开启后，FCM Guard
-自身读取用户安装 App 的 Xiaomi 自启动 AppOps（10008 与 10053），并在服务启动及现有 30 分钟
-进程内兜底检查时同步到 `Settings.Global["aurogon_enable"]`。缺少
-`WRITE_SECURE_SETTINGS` 时，手动「清空設定」与「同步自啟動 App」按钮会禁用；授予后才可操作，
-并通过平台写入结果与读回结果判断是否成功。周期同步也要求该权限。在 Aurogon 卡片的权限与操作说明中，
-Shizuku 仅在说明如何启用自动防护时提及。
-卡片可列出目前
-不受 Aurogon FCM 规则控制的用户 App 名称，不显示底层规则。保留 `targetSdk 22` 与原有 MILLET 白名单保护。
-
-另有独立、默认关闭的「Aurogon 闹钟允许清单」卡片管理
-`Settings.System["cloud_aurogon_alarm_allow_list"]`。它使用相同的 FCM 接收组件扫描规则，
-只有两个小米自启动 AppOps 均为开启时才新增 FCM 用户 App；每次同步也固定加入
-`com.google.android.gms`，并始终保留 ROM 内建的
-`com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch`，保留非本功能拥有的既有项目，
-仅移除本功能先前加入但现在已不符合条件的项目。此卡使用普通 `WRITE_SETTINGS`；开关开启时可手动同步或通过共享的 30 分钟进程内兜底同步，关闭时仍可手动同步。操作区第一行并排显示「还原默认设置」和「同步自启动 APP」，下一行是满宽的「查看目前被 Aurogon 闹钟保护的 APP」。还原会将清单重设为仅含三个内建项；若自动同步仍开启，后续同步会再次加入 GMS 和符合条件的 FCM App。此清单只影响 App 冻结时 Aurogon
-是否暂存其闹钟；不会阻止冻结、绕过 WakePath，也不保证 FCM 一定送达。
-
-功能针对中国版 HyperOS 4 在 23:00–07:59、息屏及 Deep Doze 下观察到的 nightDoze
-策略，属于未公开的实验性系统机制，不保证消息送达。旧版或无法辨识的 ROM 不会
-自动视为支持；界面明确标示无法确认 ROM 版本及支持性。明显非小米设备在修复时
-报告不支持。豁免全天有效，可能增加 Google Play 服务后台耗电。
-
-实现保留原始下划线分隔内容和顺序，按小米已知解析器进行不修剪的完整 token
-比较。套件名本身含下划线时无法由该格式完整表示。每次写入前重新读取，写后要求
-完整值一致。首次初始化时，若 GMS 已存在，仅切换一个尾端下划线请求 Observer
-通知，不能验证 Framework 缓存确已加载；健康检查不改写、不重连。
-Settings 没有 CAS，最终读取与写入之间仍可能被外部组件抢写。失败后 Observer
-回调至少等待 60 秒才可再次尝试，后续由原有 30 分钟进程内兜底或手动修复重试，
-不增加计时器、闹钟、任务或 WakeLock。解冻与重连广播每 10 秒最多一组；失败的
-恢复可在后续兜底重试，无需重写健康清单。
-
-MILLET、夜间、Aurogon 及 Aurogon 闹钟清单开关独立控制共享 GuardService。Aurogon 未开启时不会进行周期同步；
-手动同步按钮仍可单独执行。夜间功能仅监听自己的 Key，采用 400 ms
-防抖，并在启动时重新检查。常驻通知模式共享且可选；纯后台模式可靠性较低，
-进程停止后不能继续监控。开机或应用替换后按任一已启用开关尝试恢复服务。
-
-主画面显示 `WRITE_SECURE_SETTINGS` 授权状态及 Aurogon 同步结果。同步只纳入已开启的用户 App，
-且必须同时具有有效 FCM 接收组件及两个已开启的小米自启动 AppOps。无法读取自启动状态的 App
-会保留原有受管理规则，但不会新增；已确认关闭及过期规则会移除。FCM 扫描不完整时保留现有设置。
-Shizuku 仅用于首次授予权限。
-夜间保护卡不再显示 Debug／测试按钮。广播发送不表示接收方已
-接受、已解冻或已连接；原有 GTALK/MCS 心跳行为保留。普通 App 权限不能验证冻结状态、
-FCM Socket、分身恢复或受控夜间防冻结效果，界面不会报告此类验证成功，也不会关闭
-Deep Doze。
-
-主画面以一般说明及简洁状态显示 Aurogon 同步功能；查看按钮列出未受控制的用户 App 名称，不显示原始设置值或规则动作。
-Settings I/O 和持久化在后台执行，不阻塞 UI。
-
-首次写入前持久记录 GMS 是否原本存在。停用时保留原有 GMS，只移除本应用加入的
-完整 GMS token，保留其他项目；必要时写入非 null 空字符串，让 Framework 有机会
-收到清理通知，并重新读取验证。观察到外部改写时标记所有权不确定，停止自动删除，
-Debug 的清理按钮须明确确认才移除 GMS。其他应用写入完全相同的值无法检测。
-清理失败或不确定时保留待清理状态，可重试。**卸载或清除资料前，先停用并完成
-清理**，不能依赖卸载后自动清理，也不能用旧的完整清单覆盖当前值。
-
-实现及验证细节见 [开发记录](docs/nighttime-fcm-protection.md)。
-参考：[HyperOS 4 调查](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/docs/xiaomi-hyperos4-nighttime-fcm-investigation.md)、
-[参考控制器](https://github.com/dingwen07/hyperos-fcm-fix/blob/main/app/src/main/java/net/extrawdw/apps/miuisucks/powerkeeper/GameAllowlistProtection.kt)。
-
-Release 构建保留 Lint 检查，刻意保留的旧 target 以 `ExpiredTargetSdkVersion` 警告报告，不再因此阻断 Release。在 Android Studio 中请将 Gradle JDK 设为 JDK 21；其内置 JBR 25.0.3 会触发本项目当前 Lint 版本解析器崩溃。IDE 的 Gradle JDK 与命令行 `JAVA_HOME` 是不同设置。
+本项目采用 MIT License，详见 [LICENSE](LICENSE)。
