@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/icon.svg" width="180" alt="FCM Guard+ 圖示" />
+  <img src="docs/icon-fcmguard-plus.svg" width="180" alt="FCM Guard+ 圖示" />
 </p>
 
 # FCM Guard+ for HyperOS
