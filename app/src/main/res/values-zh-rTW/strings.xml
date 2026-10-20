@@ -36,11 +36,13 @@
     <string name="status_not_granted">修改系統設定：未授權</string>
     <string name="status_enabled">自動保護：已開啟</string>
     <string name="status_disabled">自動保護：未開啟</string>
+    <string name="status_enabled_value">已開啟</string>
+    <string name="status_disabled_value">未開啟</string>
     <string name="present_yes">必要項目存在：是</string>
     <string name="present_no">必要項目存在：否</string>
-    <string name="notification_mode_foreground">背景模式：前景服務</string>
-    <string name="notification_mode_hidden">背景模式：前景服務（通知被系統隱藏）</string>
-    <string name="notification_mode_quiet">背景模式：靜默純背景</string>
+    <string name="notification_mode_foreground">背景常駐：前景服務</string>
+    <string name="notification_mode_hidden">背景常駐：前景服務（通知被系統隱藏）</string>
+    <string name="notification_mode_quiet">背景常駐：靜默純背景</string>
 
     <string name="saved">設定已儲存</string>
     <string name="repaired">已修復 / 已保護</string>

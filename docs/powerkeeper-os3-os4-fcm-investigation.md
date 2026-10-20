@@ -2,25 +2,27 @@
 
 更新日期：2026-10-20
 
-範圍：使用者提供的兩份 PowerKeeper APK、`dingwen07/hyperos-fcm-fix` 公開調查，以及本次對話提供的實機觀察。本文只對證據支持的範圍下結論，不把設定寫入成功等同於 FCM 必定送達。
+範圍：使用者提供的兩份 PowerKeeper APK、兩份 `miui-services.jar`、`dingwen07/hyperos-fcm-fix` 公開調查，以及本次對話提供的實機觀察。本文只對證據支持的範圍下結論，不把設定寫入成功等同於 FCM 必定送達。
 
 ## 摘要
 
-目前最符合資料的解釋是：HyperOS 3 與 HyperOS 4 的差異不只是「自啟動」設定，而是 GMS 在背景／熄屏後還會受到的系統策略不同。使用者提供的實機對照為：在已處理 `MILLET_NO_RESTRICT_APP` 的情況下，OS3 設「自啟動＋智慧」可穩定收到 FCM；OS4 同樣設定仍會被干涉，需改成「自啟動＋無限制」才可收到。另有 OS4 加入 `aurogon_enable` 規則後比原先改善的觀察，但穩定度尚未量化。
+目前最符合資料的解釋是：HyperOS 3 與 HyperOS 4 的差異不只是「自啟動」設定，而是 GMS 及接收 App 在背景／熄屏後還會受到的系統策略不同。使用者回報在已處理 `MILLET_NO_RESTRICT_APP` 的情況下，OS3 用「自啟動＋智慧」即可穩定收到 FCM；OS4 同條件不可靠，另回報「自啟動＋無限制」或「自啟動並加入 `aurogon_enable` 規則」可改善／收到通知。後兩項是替代做法的實機觀察，尚未以固定裝置與單變因輪替實驗確認等效性或穩定度。
 
 上游研究已在 HyperOS 4 的特定中國版 ROM 上確認 Greezer 可凍結 GMS；其中夜間 Deep Doze 路徑甚至會讓已列入 `MILLET_NO_RESTRICT_APP` 的 GMS 遭 `nightDoze` 凍結。這支持 OS4 存在額外背景限制的解釋，但不能單憑此研究斷定使用者每一次漏訊息都是夜間凍結造成。
 
-兩份本地 PowerKeeper APK 都包含 `aurogon_enable` 雲端 feature 與 `GlobalFeatureTable` provider 路徑。PowerKeeper APK 中的這筆內部雲端設定，不能直接等同於 App 寫入的 `Settings.Global.aurogon_enable`；本次靜態檢查沒有找到兩者間的直接讀取連結，也沒有找到 `com.miui.game.allowlist`、`nightDoze` 或 `NIGHT_FREEZE` 實作。夜間凍結證據位於 `miui-services.jar`，而不在這兩份 PowerKeeper APK。
+兩份本地 PowerKeeper APK 都包含 `aurogon_enable` 雲端 feature 與 `GlobalFeatureTable` provider 路徑。新提供的 `miui-services.jar` 進一步證明 system_server 直接讀取 `Settings.Global.aurogon_enable`；兩份 framework 也都讀取 `com.miui.game.allowlist`、`MILLET_NO_RESTRICT_APP`。OS4 JAR 有明確的夜間 no-restrict 凍結路徑（`NIGHT_FREEZE` → `nightDoze`），OS3 JAR 未見相同路徑。PowerKeeper 的內部 `GlobalFeatureTable` 與 Android Global key 仍是不同儲存介面；本次沒有找到它們彼此同步的直接呼叫。
 
 ## 使用者提供的實機對照
 
 以下是本次研究採用的使用者實測前提，不是由本次 APK 靜態分析重新測出的結果：
 
-| 條件 | HyperOS 3 | HyperOS 4 |
+| 實機設定／觀察 | HyperOS 3 | HyperOS 4 |
 |---|---|---|
-| 自啟動＋智慧策略 | 在 `MILLET_NO_RESTRICT_APP` 已處理的情況下，可穩定收到 FCM | 仍會受到干涉，未能維持相同收訊結果 |
-| 自啟動＋無限制策略 | 不需要切換到此策略即可正常收訊 | 使用者確認切換到此策略後才能收到 FCM |
-| `aurogon_enable` | 不需要此規則即可收訊 | 使用者另觀察到加入規則後改善；穩定度未確認 |
+| 自啟動＋智慧策略，並已處理 `MILLET_NO_RESTRICT_APP` | 使用者回報可穩定收到 FCM | 使用者回報仍會受干涉，收訊不可靠 |
+| 自啟動＋無限制策略 | 使用者表示不必切換成無限制也能收訊 | 使用者回報此組合可收到通知 |
+| 自啟動＋`aurogon_enable` FCM 廣播規則 | 使用者表示 OS3 不需額外規則 | 使用者回報此組合也能改善／收到通知；穩定度未量化 |
+
+本對話沒有記錄「自啟動／智慧／無限制」具體是替 GMS 還是目標接收 App 設定，也未提供各組測試的 ROM build、持續時間、訊息樣本及重複次數。以下分析因此把它們當成使用者觀察到的成功組合，不據此指定是哪一個 package 的 PowerKeeper 狀態造成結果。
 
 這些結果顯示「自啟動」和「背景不受限制」是兩個不同條件。自啟動允許系統在適當情況啟動 App；它本身不表示 GMS 長連線不會被省電、網路管理或凍結機制中斷。`MILLET_NO_RESTRICT_APP` 已處理也只證明該設定值包含 GMS，不足以證明所有 OEM 背景限制均已解除。
 
@@ -62,7 +64,72 @@
 
 兩份 PowerKeeper APK 的 `ActiveStateController.dealNoRestrictApp()` 都會呼叫 `UserConfigureHelper.getNoRestrictApps()`，再以逗號清單寫入 `Settings.System.MILLET_NO_RESTRICT_APP`。也就是說，此值是 PowerKeeper 私有使用者策略資料的投影，而不是可由 App 任意持有的永久白名單。使用者將 App 設成「無限制」會影響這份來源策略；直接追加 GMS 可能在 PowerKeeper 重建清單時被移除。
 
-本次兩份 APK 的輸出都可看到上述相同資料流；兩份 APK 都沒有證明「智慧模式」下 FCM 的完整策略。要判定 OS3／OS4 的實際凍結／網路路徑，仍須取得相應版本的 `miui-services.jar`、SecurityCenter 等元件，並與運行時記錄交叉驗證。
+本次兩份 APK 的輸出都可看到上述相同資料流；兩份 APK 都沒有證明「智慧模式」下 FCM 的完整策略。相應版本的 `miui-services.jar` 現已取得並靜態比對，結果見下節；SecurityCenter 策略及實際 runtime 命中仍需裝置記錄交叉驗證。
+
+## 本地 `miui-services.jar` 靜態比對
+
+使用 JADX 1.5.6 對兩個 JAR 內的 DEX 做反編譯與差異搜尋。以下 hash 用於固定樣本身分；版本標籤依檔名記錄，尚未從相應手機 `getprop` 或系統分區讀回核對。
+
+| 樣本 | SHA-256 |
+|---|---|
+| `docs/rom-samples/miui-services/miui-services-OS3.0.319.0-WPBCNXM.jar` | `0CA8BEE568F2D4607AA6393764338D5B52FCD0101CDCE49C39D8051A3FDC4C70` |
+| `docs/rom-samples/miui-services/miui-services-OS4.0.2.0.XPBCNXM.jar` | `F1EB7926D86CE4A4F41AB35FFCB90D9D52D89CE8A3E42BA4D737691C1E000693` |
+
+### 中國版判定來源
+
+- OS3 的 `PolicyManager.CN_MODEL` 是靜態常數，實作為 `"CN".equals(SystemProperties.get("ro.miui.region", "unknown"))`。也就是讀取 `ro.miui.region`，只有值精確等於大寫 `CN` 才回 true；缺值時使用 `unknown`，結果為 false。
+- OS4 的 `PolicyManager.isCnModel()` 轉呼叫 `PolicyManagerConfig.isCnModel()`；初始值為 `"CN".equals(Build.getRegion())`。`GreezeManagerService.onDeviceProvisionedChanged()` 也會重新讀 `Build.getRegion()` 並呼叫 `setCnModel()`，因此 OS4 這個快取判斷可在該 callback 被更新。setter 同時設 `ConfigManager.isGlobal = !cnModel`。
+- 在這兩份 JAR 顯示的直接判斷式中，輸入是 region 字串，條件是精確字串比較；沒有直接讀取語言、SIM 或 GPS。OS4 的 `miui.os.Build.getRegion()` 實作不在這兩份 `miui-services.jar` 中，因此仍不能由此確認它底層使用哪個來源。
+- 在使用者提供的 OS3／OS4 ROM 檔名中，`CNXM` 是版本識別資訊；它本身不等於 runtime 已讀到 `CN` 的證據。
+
+#### ADB 能確認的範圍
+
+用唯讀的 ADB property 查詢記錄每台目標裝置的 property：
+
+```powershell
+adb devices -l
+adb shell getprop ro.miui.region
+```
+
+若同時連接多台裝置，先從 `adb devices -l` 選定序號，再執行：
+
+```powershell
+adb -s <serial> shell getprop ro.miui.region
+```
+
+- OS3 JAR 直接以這個 property 判定；只有輸出精確為 `CN` 才代表該段 predicate 為 true。空值或其他字串都不是 CN。
+- OS4 查詢可確認 property 當前值，但因 framework 走 `Build.getRegion()` wrapper，單獨的 `getprop` 輸出不能證明 wrapper 最終回傳相同值。還需要取得該 ROM 提供 `miui.os.Build` 的 framework class，檢查 `getRegion()` 實作；或在 runtime 取得該方法回傳值。該 class 不在目前提供的 `miui-services.jar` 反編譯輸出中。
+- 以上查詢不會切換 region 或修改設定。尚未連接手機執行，因此本報告沒有任何實機 property 值，也未確認 OS3／OS4 裝置實際採用哪個分支。
+
+#### 對 Greezer 的影響
+
+OS4 `AurogonImmobulusMode.isNoRestrictFreezeable()` 以 `PolicyManager.isCnModel()` 為條件之一：只有 CN model 且 `EventReceiver.isInSleepMode()` 時，才進一步檢查 `greezer_no_restrict_ctrl_white_list`；不在該清單內的 no-restrict package 會被判為仍可凍結。這是 OS4 no-restrict freeze 例外中的一個 gating condition。單有 `ro.miui.region=CN` 不足以證明該分支已實際凍結 GMS，還需 sleep mode、resource membership、freeze 決策與 UID 狀態等證據。
+
+OS4 的獨立 night Deep Idle 路徑檢查夜間、device idle 與螢幕狀態，並對 MILLET entries 發出 `nightDoze` freeze request。這條夜間路徑和 `isNoRestrictFreezeable()` 中的 CN model + sleep mode filter 是不同條件鏈，不應把兩者合併成一個「中國版睡眠模式」開關。
+
+### no-restrict 清單與凍結過濾器
+
+- OS3 `AurogonFilterManager.filter()` 在 `MSG_FILTER_NO_RESTRICT_CASE` 命中時，只要 package 在 `MILLET_NO_RESTRICT_APP` 解析出的集合內，就略過該次凍結候選。
+- OS4 同一分支改為：若 package 在 no-restrict 集合，只有 `isNoRestrictFreezeable()` 為 false 才略過凍結。該方法在中國版且 `EventReceiver.isInSleepMode()` 為真時，會讓不在 `ListAppsManager.getNoRestrictCtrlWhitelist()` 的 no-restrict package 仍可凍結。
+- OS4 的 whitelist 是 framework resource `greezer_no_restrict_ctrl_white_list` 載入；JADX 輸出未還原此資源的實際 package 清單，因此不能僅憑此 JAR 宣稱 GMS 必在或不在該 whitelist。若 GMS 不在其中、並命中中國版睡眠條件，OS4 這條 filter 會移除 MILLET no-restrict 的豁免效果。
+
+### OS4 夜間 Deep Idle 凍結路徑
+
+- OS4 `EventReceiver` 在本地時間 23:00 排下一次 `NIGHT_FREEZE` alarm；收到該事件或偵測到 night + device Deep Idle + 螢幕關閉時，若 `isNightDeepIdleStationary()` 仍成立，就送出 handler message 25。
+- `PowerStrategyMode` 處理 message 25 時呼叫 `ActionExecute.dealNightFreeze()`。該方法取 `MILLET_NO_RESTRICT_APP` 中的所有 package，解析其 app UID，並以 reason `nightDoze` 呼叫 `delayFreeze(..., true)`。
+- 這條路徑在呼叫點明確以 no-restrict 清單作為夜間 freeze 的候選來源；是否成功凍結某 UID 還受 `delayFreeze` 內部條件、政策與執行時狀態影響。JAR 靜態碼證明 OS4 有這條路徑，不能單獨證明特定 GMS UID 在某台裝置上實際被凍結。
+- OS3 的 `EventReceiver`／`PowerStrategyMode`／`ActionExecute` 未找到對應的 night-freeze message、`dealNightFreeze()` 或 `nightDoze` 字串；其 `AurogonFilterManager` 的 no-restrict filter 是直接豁免。這是兩份 framework 樣本可確認的版本差異。
+
+### `com.miui.game.allowlist` 與 `aurogon_enable`
+
+- OS3、OS4 的 `AurogonImmobulusMode` 都觀察 `Settings.System.com.miui.game.allowlist`，以底線分隔更新 allowlist；`GreezeManagerService.preCheckInterest()` 對命中的 UID 跳過該次 Greezer interest/freeze 檢查。這確認該 key 在兩份 framework 都有消費者，但此靜態比對不量化它對其他 freeze path 的覆蓋範圍。
+- OS3、OS4 的 Greezer 都讀取 `Settings.Global.aurogon_enable`。`broadcastctrl:true#package/action` 會令 `parseAurogonEnable()` 開啟 broadcast control 並把 package/action 寫入 map；`isAllowBroadcast()` 會依被呼叫端 package 及 action 查這個 map，進而影響特定廣播的放行、解凍或延後。FCMGuard 自動同步的規則對象是具有 FCM receive handler 的接收 App package，不是 GMS 的 transport socket；它寫入 `com.google.android.c2dm.intent.RECEIVE` 規則，和 framework parser 的格式吻合。
+- 因而 Aurogon broadcast rule 有可追蹤的 framework 消費路徑，可改善特定 receive broadcast 的處理；它不等同 no-restrict/night-freeze 豁免，也不能證明 GMS socket 長連線不再中斷。不能單以加入該規則後收訊改善，推論它阻止了 Greezer 凍結。
+- OS3、OS4 另都有 GMS network limiter 程式碼，OS4 路徑在螢幕關閉時會從 Aurogon allowlist 移除 GMS 並對 GMS UID 執行限制處理。此設定與 no-restrict/night freeze 是不同控制面；觸發狀態和裝置是否走到該分支仍須 runtime 記錄確認。
+
+### 靜態比對結論
+
+本地 framework 樣本使 OS3／OS4 的差異比原先只看 PowerKeeper APK 更清楚：OS3 的 no-restrict filter 是直接豁免；OS4 加入中國版 sleep-mode 例外及獨立夜間 Deep Idle no-restrict freeze 流程。這與使用者描述的「OS3 智慧可收、OS4 需要無限制」相容，並提供了具體候選機制，但仍不是該裝置漏訊息的因果證明。GMS 是否在 OS4 資源 whitelist、當時 sleep/deep-idle 條件、freeze 是否成功、socket 是否掉線、以及受控 FCM 是否送達，都要在目標裝置逐層驗證。
 
 ## 上游研究提供的系統層證據
 
@@ -90,8 +157,8 @@
 
 1. 自啟動開關控制 App 被啟動的資格，不單獨保證 GMS 長連線存活。
 2. 「智慧」與「無限制」的差異由 PowerKeeper／SecurityCenter 的 per-app 策略及其衍生策略共同形成；MILLET 只反映其中 no-restrict package 投影。
-3. HyperOS 4 的 framework Greezer 存在已被實測的 GMS 凍結路徑，並可能在夜間 Deep Doze 覆蓋一般 no-restrict 豁免。這能解釋 OS4 為何可能需要較強策略或額外豁免。
-4. 使用者觀察到 OS4 加入 `aurogon_enable` 後有所改善，表示這項規則可能放行／修復 FCM 廣播控制路徑；目前尚不能確定它直接阻止 Greezer 凍結，或只是在 GMS 恢復後讓 FCM broadcast 更容易到達。
+3. 本地 OS4 framework code 有兩條與 no-restrict 相關的凍結機制：中國版 sleep-mode filter 例外，以及夜間 Deep Idle 對 MILLET package 發起 `nightDoze` freeze。OS3 樣本未見同一例外／排程。這使「OS4 背景策略比 OS3 強」有本機靜態證據；GMS 是否命中仍未知。
+4. `aurogon_enable` 的 `broadcastctrl` 在兩份 framework 都有直接 parser 與 broadcast decision consumer。加入規則可解釋特定 broadcast 被允許的改善；它不是對 freeze 的豁免。收訊改善可能來自 broadcast dispatch，不能據此認定 Greezer 沒有凍結 GMS。
 5. 因此「OS3 不需 Aurogon、OS4 加上後改善」與現有研究相容，但還不能證明這是唯一原因，也沒有量化 OS4 的夜間可靠度。
 
 特別修正一項容易混淆的推論：雖然本地兩份 PowerKeeper APK 的 `GmsObserver` 變化很明顯，不能因此直接說「OS4 的 PowerKeeper GmsObserver 就是自啟動＋智慧失效的原因」。上游研究將其同版本裝置的成敗主要定位到 `miui-services.jar` Greezer，故要把責任落到 PowerKeeper 或 Greezer，必須用使用者這兩台／兩版系統的實際 framework 證據驗證。
@@ -103,12 +170,15 @@
 | 兩份 APK 都含 PowerKeeper `aurogon_enable` 雲端 feature | 已確認 | APK 常數、helper、CloudUpdate 寫入路徑 |
 | PowerKeeper 有受限的 `GlobalFeatureTable` ContentProvider | 已確認 | Authority、URI 與 Manifest 權限 |
 | 兩份 APK 都從私有 UserConfigure 產生 MILLET 清單 | 已確認 | `getNoRestrictApps()` → `Settings.System.putString()` |
+| 本地 OS4 framework 可對 MILLET no-restrict entries 發起夜間 `nightDoze` freeze | 本機 JAR 靜態確認 | GMS runtime 是否在候選/凍結結果內未知；需核對 resource whitelist 與 freeze log |
+| OS3 no-restrict filter 直接豁免、OS4 加入 sleep-mode freeze 例外 | 兩份本機 JAR 靜態確認 | 不能證明使用者裝置當時命中該條件 |
 | OS4 特定 ROM 可在 MILLET 已含 GMS 時凍結 GMS | 上游特定裝置已實測 | 不可外推為所有 OS4 ROM 或每次漏訊息 |
 | OS3 自啟動＋智慧穩定收、OS4 同條件較差 | 使用者實機觀察 | 本報告未重新執行該實驗 |
 | OS4 加入 `aurogon_enable` 後改善 | 使用者實機觀察 | 改善幅度與長時間穩定度未知 |
 | PowerKeeper 內部 Aurogon feature 與 Android Global key 同步 | 未證實 | 本次 APK 靜態分析未見直接連結 |
 | OS4 每次 FCM 失敗都由 nightDoze 造成 | 未證實 | 需事件時間、凍結日誌與 socket 狀態對照 |
-| `aurogon_enable` 是透過阻止凍結而改善 FCM | 未證實 | 可能涉及廣播規則，需分層實驗 |
+| `aurogon_enable` broadcastctrl 是否能改善對應 receive broadcast 的處理 | framework parser/decision path 已確認 | 實際 GMS / 接收 App 是否命中須看設定及 runtime log |
+| `aurogon_enable` 是透過阻止凍結而改善 FCM | 未證實 | framework 顯示 broadcast control 與 freeze policy 是不同路徑 |
 
 ## 建議的裝置驗證方式
 
@@ -185,7 +255,7 @@ PowerKeeper 對 `noRestrict` 的來源列生成 `MILLET_NO_RESTRICT_APP`。因�
 
 這條路徑不依賴舊 PowerKeeper 夜間省電開關；研究也說明該方法本身沒有直接檢查是否移動或正在充電。每天 23:00 有 `NIGHT_FREEZE` 排程，進入夜間 deep-idle 時也會觸發；`ActionExecute.dealNightFreeze()` 最終請求 freeze，日誌原因是 `nightDoze`。
 
-這就能解釋一種表面矛盾：GMS 已出現在 `MILLET_NO_RESTRICT_APP`，但夜間仍被凍結。受測 framework 的 `isNoRestrictFreezeable()` 會允許已識別的 messaging packages 保持豁免，卻讓其他 no-restrict App 在夜間條件下重新可凍結。應以裝置上的 package 分類和 framework 版本核對，不能假定所有 GMS 身分／使用者空間都會走相同判定。
+這就能解釋一種表面矛盾：GMS 已出現在 `MILLET_NO_RESTRICT_APP`，但夜間仍被凍結。上游受測 framework 的 `isNoRestrictFreezeable()` 會依 `greezer_no_restrict_ctrl_white_list` 決定哪些 no-restrict package 在睡眠模式仍保持豁免。本地 OS4 JAR 確認使用同名 resource，但 JADX 輸出沒有還原其實際內容；需從 ROM resource 或裝置查明 GMS 是否列入，不能假定所有 GMS 身分／使用者空間都會走相同判定。
 
 ## `com.miui.game.allowlist` 的格式、效果及限制
 
@@ -201,23 +271,23 @@ PowerKeeper 對 `noRestrict` 的來源列生成 `MILLET_NO_RESTRICT_APP`。因�
 
 ### Android Settings Global
 
-FCMGuard 本地程式目前讀寫 `Settings.Global["aurogon_enable"]`。在專案程式碼中，`AurogonProtection` 會以目前 App UID 執行 `Settings.Global.getString()`／`putString()`，要求 `WRITE_SECURE_SETTINGS` 已授予；按鈕手動同步和 GuardService 內的週期同步使用相同 App-side 路徑。沒有授權時不執行 Global 寫入。
+FCMGuard 本地程式目前讀寫 `Settings.Global["aurogon_enable"]`。`AurogonProtection` 以目前 App UID 執行 `Settings.Global.getString()`／`putString()`。手動「清空設定」與「同步」按鈕在缺少 `WRITE_SECURE_SETTINGS` 時會禁用；授權後才可從 UI 操作，並依 `putString` 結果和讀回候選值判定成功或失敗。GuardService 的週期同步也會先檢查該權限。底層手動寫入方法仍依平台寫入與讀回結果判定，UI 不提供無權限時的觸發入口。
 
 `AurogonConfig` 把 Aurogon 值視為分號分隔的多個 section；enabled broadcast-control section 形如 `broadcastctrl:true#package/action#package/action`。FCMGuard 以自有 marker `com.rsps1008.fcmguard/__FCMGUARD_AUROGON_AUTOSTART_V1__` 標示自己管理的 section，並嘗試保留其他 section。規則中 package 與 action 以 `/` 分隔；`ALL` 或明確 `com.google.android.c2dm.intent.RECEIVE` 可匹配該 package 的 FCM receive 規則。
 
 本專案目前自動同步會從可讀取的 Xiaomi Autostart AppOps 與可見 FCM receiver/service 掃描結果取交集；只對符合條件的 package 新增規則。不可讀狀態不會擴大新增範圍，對先前已管理但現在狀態未知的項目採保留既有規則方式處理。Engine 在變更前重讀 Settings，若第一次讀與寫前讀回不同，回報偵測到競態並停止寫入；寫入後再次讀取，必須 `putString` 回 true 且讀回等於預期候選值才標為 verified。Settings 沒有 CAS，故這仍無法消除「最後一次讀取和 PUT 之間」的極短競態。
 
-GuardService 的 Aurogon fallback 間隔為 30 分鐘，只在 Aurogon 開關啟用且權限仍存在時執行；這是進程內 Handler，不是精確鬧鐘，也不會喚醒休眠 CPU。若 App process 被系統停止，沒有服務在背景存活的保證。手動同步和週期同步共用同一個 App UID scan/write path。
+GuardService 的 Aurogon fallback 間隔為 30 分鐘，只在 Aurogon 開關啟用且權限仍存在時執行；這是進程內 Handler，不是精確鬧鐘，也不會喚醒休眠 CPU。若 App process 被系統停止，沒有服務在背景存活的保證。手動同步和週期同步共用同一個 App UID scan/write path，但手動操作現在會在 Secure 權限缺失時仍嘗試寫入。
 
 ### PowerKeeper 私有 GlobalFeatureTable
 
 兩份 PowerKeeper APK 中的同名 feature 是 PowerKeeper 內部 CloudData 設定欄位。Provider 的 Manifest 權限是 `signatureOrSystem`，普通第三方 App 沒有理由假設可以呼叫它。PowerKeeper helper 用 `ContentResolver.call()` 查詢 `GlobalFeatureTable`，更新 helper 也透過 provider 寫入；這是 PowerKeeper 自己管理 CloudData feature 的介面。
 
-名稱相同只代表都叫 `aurogon_enable`，不代表 storage、schema、權限或 writer 相同。本次靜態搜尋沒有找到 `getCloudAurogonEnable()` 被其他 PowerKeeper 類別呼叫，也沒有找到它和 Android `Settings.Global` 之間的橋接。若要證明兩者同步，需直接觀察 ROM framework／provider 寫入行為，或從 `miui-services.jar` 找到讀取 `Settings.Global` key 的消費點；只看 PowerKeeper APK 不足。
+名稱相同只代表都叫 `aurogon_enable`，不代表 storage、schema、權限或 writer 相同。本次靜態搜尋沒有找到 `getCloudAurogonEnable()` 被其他 PowerKeeper 類別呼叫，也沒有找到它和 Android `Settings.Global` 之間的橋接。新比對的兩份 `miui-services.jar` 確認 Greezer 直接讀取 Android `Settings.Global.aurogon_enable`，但沒有證明 PowerKeeper 私有 `GlobalFeatureTable` 會同步到該 key；跨元件橋接仍未知。
 
 ### Aurogon 與 Greezer 的關係
 
-術語容易混淆：一方面，Aurogon 是 Greezer 冻結程式碼中的類別／allowlist 概念；另一方面，`aurogon_enable` 是 PowerKeeper cloud feature 名稱及 FCMGuard 寫入的 Global Settings key。參考研究對 `com.miui.game.allowlist` 的凍結前檢查有具體 framework 證據；對 `Settings.Global.aurogon_enable` 則只說明 writer/lifecycle，沒有在三份調查中完整記載作者如何發現 key、哪個 framework 元件消費它、或它是否直接影響 Greezer freeze 判斷。
+術語容易混淆：一方面，Aurogon 是 Greezer 冻結程式碼中的類別／allowlist 概念；另一方面，`aurogon_enable` 是 PowerKeeper cloud feature 名稱及 FCMGuard 寫入的 Global Settings key。本地兩份 framework 都證實 `AurogonImmobulusMode.parseAurogonEnable()` 讀取這個 key，並把 `broadcastctrl` 設定交給 `GreezeManagerService` 的廣播控制與 package/action map。這確認 broadcast consumer；本次沒有發現它會改寫夜間 freeze eligibility，兩者應視為不同 policy path。
 
 因此 OS4 上 `aurogon_enable` 加入後改善 FCM，可能是廣播控制規則增加了 GMS／接收 App 的分派許可，也可能與其他恢復步驟同時發生。除非同時觀察 framework 配置、GMS frozen state、FCM socket 與實際 push，不能把改善直接寫成「已阻止 Greezer 凍結」。
 
@@ -241,7 +311,7 @@ Aurogon 則不同：同一重寫調查表示沒有觀察到類似的短週期 ov
 | `GuardService.java` | 在服務存活期間執行 30 分鐘 Aurogon fallback；不等同永遠背景存活 |
 | `BootReceiver.java`／`MainActivity.java` | 根據使用者開關與權限處理服務啟動、手動同步與狀態 UI |
 
-`WRITE_SECURE_SETTINGS` 對一般 App 不是一般 runtime permission。此專案的設計是由使用者透過 Shizuku 授權 App 自身的該項權限，授權後後續 `Settings.Global` 呼叫由 FCMGuard App UID 直接執行；不需要每次同步都呼叫 Shizuku。若權限不存在，程式應明確回報並停止寫入，不能把 `canWrite Settings.System` 或普通 Settings 權限當成足夠。
+`WRITE_SECURE_SETTINGS` 對一般 App 不是一般 runtime permission。此專案提供由使用者透過 Shizuku 授權 App 自身權限的流程；手動 `Settings.Global` 操作現在直接嘗試，最後以例外、`putString` 回傳值與讀回確認平台實際是否允許。這不把 `Settings.System.canWrite()` 視為 `Settings.Global` 寫入授權。背景週期同步仍要求 Secure 權限。
 
 本地程式碼的 Aurogon「清空設定」按鈕會將整個 `Settings.Global.aurogon_enable` 寫成 null，成功後才清除本地管理記錄。它不是只刪 FCMGuard marker section，會移除其他 App／使用者既有規則；UI 需有清楚的破壞性操作確認。自動同步則會嘗試保留非 FCMGuard sections，停用自動同步不等同清空整個 Global key。
 
@@ -258,7 +328,7 @@ Aurogon 則不同：同一重寫調查表示沒有觀察到類似的短週期 ov
 
 ## 本次研究執行紀錄與可重現線索
 
-這次本機 APK 工作只做靜態解包與搜尋，沒有對手機寫入 Settings、切換電池模式、測試 ADB/Shizuku 權限或發送 FCM 訊息。APK 由 Apktool 3.0.3 解包；使用 SHA-256 留下樣本識別值。已檢查的重點包括：
+這次本機工作只做靜態解包與搜尋，沒有對手機寫入 Settings、切換電池模式、測試 ADB/Shizuku 權限或發送 FCM 訊息。PowerKeeper APK 由 Apktool 3.0.3 解包；framework JAR 使用 JADX 1.5.6 反編譯。JADX 對 OS3 樣本回報 4 個反編譯錯誤、OS4 樣本回報 26 個錯誤；本文只採用成功輸出的目標類別／方法，並以 DEX 字串搜尋交叉確認 key 名稱。JADX 輸出留在 `%TEMP%\fcmguard_os3_jadx` 與 `%TEMP%\fcmguard_os4_jadx`。已檢查的重點包括：
 
 - Manifest 的 package、SDK 建置資訊、PowerKeeper Provider authority 及權限。
 - `GlobalFeatureConfigure`、`GlobalFeatureConfigureHelper`、`PowerKeeperConfigureProvider`。
@@ -266,6 +336,7 @@ Aurogon 則不同：同一重寫調查表示沒有觀察到類似的短週期 ov
 - `ActiveStateController`、`UserConfigureHelper` 的 no-restrict rows 到 MILLET Settings 寫入路徑。
 - `GmsObserver` 的欄位、方法、PowerKeeper GMS chain 與 Greezer Binder 行為。
 - 對 PowerKeeper smali 搜尋 `com.miui.game.allowlist`、`nightDoze`、`NIGHT_FREEZE`；兩份 APK 均未命中。
+- 對 framework `AurogonFilterManager`、`AurogonImmobulusMode`、`ActionExecute`、`EventReceiver`、`PowerStrategyMode`、`ListAppsManager`、`GreezeManagerService` 檢查 no-restrict freeze filter、夜間 freeze dispatch、allowlist 與 broadcast control call path。
 
 本地 APK 解包時的臨時輸出曾存放於 `%TEMP%\powerkeeper_A16_analysis` 和 `%TEMP%\powerkeeper_4_2_00_b5126b1c7ae24dbf9346ebd451ea7d71`。這些是分析過程中的暫存，不是專案原始碼或可攜式來源；跨電腦重現應使用原 APK 和上述工具重新解包。
 
@@ -311,6 +382,59 @@ OS3、OS4 各自記錄完整 ROM build、Android API、PowerKeeper、SecurityCen
 4. **推播層**：受控訊息立即到達、延遲到達、解鎖後到達、或逾時未達。
 
 只有最後一層的實際訊息測試才是 push delivery evidence；它仍需多輪重複才能估算穩定性。Socket 或 Settings 單一快照不能替代端到端測試。
+
+## 補充追查：既有三項保護以外的攔截機制
+
+本節回答「MILLET、夜間保護、Aurogon 廣播規則以外，還有哪些機制會使 GMS 休眠或阻擋接收 App 被喚醒」。以下是兩份 JAR 的靜態證據，沒有操作手機或證明新增設定能改善實際到達率。行號指本次 JADX 暫存輸出，重新反編譯後可能改變。
+
+### WakePath 與接收 App 的冷啟動審核
+
+- OS4 `com/android/server/am/BroadcastQueueModernStubImpl.java:352` 的 `checkApplicationAutoStart()` 同時涉及 `checkBroadcastWakePath()`、自啟動 AppOps 與其他廣播派送條件；`checkSkipReceiver()` 在程序尚未啟動且 receiver 為 ResolveInfo 時走這條路。Aurogon 的 `isRestrictReceiver()` 是另一個檢查入口。
+- 這裡對 `com.google.android.c2dm.intent.RECEIVE` 的直接豁免條件包含 `Build.IS_INTERNATIONAL_BUILD`。不能把國際版的豁免套到中國版，也不能把這個 Build 旗標直接等同前文的 `PolicyManager.isCnModel()`。
+- OS3 同檔 `checkApplicationAutoStart():328` 也有上述國際版／C2DM 條件。這不是已證實的 OS4 新增退化。
+- OS4 `com/miui/server/WakePathChecker.java:228` 的 `checkBroadcastWakePath()` 取 caller、callee、action、class、UID 與 userId，對跨 App 廣播呼叫 `isAllowedByWakePathRule(..., 2, userId)`。後者包含 AppRunningControl 的禁止執行檢查（約 284）與 WakePath 規則拒絕分支；部分規則也涉及已存活程序。
+- 因此「GMS 沒被凍結」及「Aurogon 放行廣播」不等於「接收 App 必然能啟動」。自啟動狀態、WakePath 規則、程序存活狀態仍需分開判斷；也不能宣稱開啟自啟動會繞過所有 WakePath 規則。
+- OS4 `SecurityManagerService.java:788` 的 `checkWakePathPermission()` 強制要求 `android.permission.UPDATE_APP_OPS_STATS`；`pushWakePathData()`、`pushWakePathWhiteList()` 等寫入入口呼叫這個檢查。目前未找到 FCMGuard 普通 UID 可以直接維護這些規則的入口。使用者透過系統 UI 調整個別 App 設定仍可不依賴 Shizuku。
+- 裝置調查可尋找 `MIUILOG-WAKEPATH: call was rejected by wakepath`、`AppRunningControl, Reject`，並核對 caller 是否 GMS、callee 是否受測 App、action 與訊息時間。沒有日誌不能反證沒有攔截。
+
+注意：`checkApplicationAutoStart()` 的 JADX 輸出含異常控制流程，以上只引用可辨識的呼叫與條件，不把整份 Java 輸出當成精確可編譯的原始碼。判定某個 App 的最後拒絕分支仍需 DEX 指令或實機證據。
+
+### Aurogon Alarm 暫存：新的低權限候選入口
+
+- OS4 `GreezeManagerService.java:4013` 的 `isNeedCachedAlarmForAurogonInner()` 對 `FULLY_FROZEN` UID 進行判斷；一般應用可能返回 true 並記錄 `cached alarm!`。
+- `mAurogonAlarmAllowList` 命中的套件在相應分支返回 false，表示不要求走此項 Alarm 暫存。它不代表永久免凍結，也不直接表示解除其他 Alarm、背景執行或網路政策。
+- 約 759 行的 observer 讀取 `Settings.System.cloud_aurogon_alarm_allow_list`，以逗號分隔套件名稱，並用讀到的清單取代記憶體清單。預設清單約 753 行為 `com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch`。OS3 同樣存在這個設定鍵與 Alarm 暫存邏輯。
+- 因為屬於 Settings.System，這是值得驗證是否能沿用 FCMGuard WRITE_SETTINGS 模式的候選。僅從讀取端不能證明普通 App 寫入會被 ROM 接受、重開機會載入，或 GMS 的相關 Alarm 正受此路徑影響。
+- 若後續實作，必須保留原有清單及內建預設的效果，不能直接覆寫成只有 GMS；先確認 observer 的載入與重開機行為。若現有保護已讓 GMS 不進入 FULLY_FROZEN，此白名單對 GMS 可能沒有額外收益。
+- 目前分類為「找到機制與候選設定入口，未證實額外效益」，不宜直接預設開啟或宣稱第四層已完成。
+
+### GMS 專用限制觸發
+
+- OS4 `GreezeManagerService.java:4740` 的 `triggerGMSLimitAction`（JADX 呈現為 `lambda$updateGmsNetStatus$3`）在中國版、`mGmsLimitEnabled` 為 true、熄屏時，移除 GMS 的 Aurogon allowlist 項目，並對正在執行的 GMS UID 要求 `triggerQuickFreeze()`。
+- `updateGmsNetStatus(boolean status):7003` 在 status 為 true 時排入上述動作。僅憑名稱無法把 true 解釋為「Google 網路正常」或「Google 網路故障」，需繼續追上游呼叫者的語義。
+- OS3 也有 `triggerGMSLimitAction()`。它是另一個可要求凍結的來源，但不代表一定繞過後續共用免凍結檢查，也不能直接推論既有夜間／game allowlist 保護失效。
+
+### 對目前產品的結論
+
+目前最明確的剩餘風險是「GMS 通道健康，但目標 App 的啟動／喚醒政策仍拒絕派送」。可先沿用系統設定導引處理個別接收 App；普通 UID 尚無已確認可自動改寫 WakePath 的方式。Alarm allowlist 是新增非 Shizuku 保護的研究候選，但在現有方案已穩定的情況下，應先找到該暫存分支命中的證據再決定是否加入。此次只補充研究報告，未修改 App 行為、未執行裝置設定寫入或推播測試。
+
+### 實機 ADB 試寫紀錄（2026-10-20）
+
+- 使用者提供的連線位址 `192.168.2.3` 目前解析為 ADB serial `192.168.2.3:41237`；同時 adb 還列出其他裝置，因此後續命令均應明確指定此 serial。
+- 裝置回報 `ro.miui.region=CN`、`ro.build.version.incremental=OS4.0.4.0.XPBCNXM`，GMS 已安裝，套件 UID 為 10138。
+- 寫入前 `settings get system cloud_aurogon_alarm_allow_list` 回報 `null`；框架 dump 顯示 Greezer 已啟用。依靜態程式內建值，先前使用的預設為 `com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch`。
+- 已執行 `settings put system cloud_aurogon_alarm_allow_list 'com.tencent.mm,com.tencent.mobileqq,com.xtc.watch,com.google.android.gms'`，讀回完全相同，表示 Settings provider 接受並保存此值。這不是框架讀取分支或功能改善的端到端證明。
+- 試寫時 `dumpsys deviceidle` 顯示 `mState=ACTIVE`、`mScreenOn=false`、`mCharging=true`，因此未處於 Doze；GMS 主程序 PID 6909 存活，Alarm dump 可見 `gcm.HEARTBEAT_ALARM`、`gcm.TRIGGER_IDLE`、`gcm.ACTION_CHECK_QUEUE`。這些狀態不能證明其 Alarm 曾被 Aurogon 暫存或設定已改變推播結果。
+- 本機 `dumpsys greezer` 可用，`dumpsys greeze` 不存在。尚未用可確認的介面取得 GMS 當下凍結狀態，也沒有做受控推播 A/B。因此本次只驗證了設定可寫／可讀回。
+- 修改前值為 `null`。若需還原原本的設定狀態，可執行 `adb -s 192.168.2.3:41237 shell settings delete system cloud_aurogon_alarm_allow_list`；刪除會回到 framework 內建預設清單。試寫值保留原來三個預設項目並追加 GMS。
+
+### FCM Guard 主頁管理卡片
+
+- 新增預設關閉的 Aurogon Alarm 管理卡，維護 `Settings.System[cloud_aurogon_alarm_allow_list]`；與 Aurogon FCM 卡使用相同的 FCM/GCM 元件掃描與兩項 Xiaomi Autostart AppOps 都為 ENABLED 才新增的規則。
+- 每次同步固定寫入 `com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch` 三個 ROM 內建項目。同步保留其他既有項目，只移除 SharedPreferences 有記錄、且目前已不符合條件的本功能新增項目；掃描不完整時不改 Settings。寫入前比對原值、寫後讀回驗證。
+- 自動與立即同步共用 `syncCurrentAutostartApps()`，每次都固定加入 `com.google.android.gms`，即使 FCM client 掃描刻意排除 GMS；同時保留三個內建套件與非本功能擁有的項目。操作區第一列並排「還原預設設定」與「同步自啟動APP」，第二列為滿寬「查看目前被 Aurogon 鬧鐘保護的 APP」。還原會將清單重設為 `com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch`，移除 GMS 與其他現有項目；寫前核對、寫後讀回。還原後若自動同步仍開啟，之後同步會重新加入 GMS 與符合條件的 FCM App；卡片狀態會顯示目前已還原為三項。
+- 使用者需授予 `WRITE_SETTINGS`。不需要 Shizuku。開關開啟時併入 GuardService 共用的 30 分鐘進程內兜底；另有手動同步和目前清單檢視。關閉開關不清除規則，與 Aurogon 自動同步卡行為一致。
+- 這只維護 Aurogon 暫存 Alarm 的清單；不解凍 App、不處理 WakePath，且未證明改善端到端 FCM 到達。同步結果文案統一為「另加入 FCM 與預設服務」。本次含「還原預設設定」按鈕與指定排列的 release APK 已用使用者提供的 stockify.jks、alias key 簽署，並成功更新安裝於 192.168.2.3:41237 的 OS4.0.4 裝置（versionName 1.6.1、versionCode 31；SHA-256 `69FD33C55374D431DF2E09DC21F986B0BC43BBA7E8D3CCC9387E912DFB31E46D`）。本次已在手機啟動主畫面，修正後未再出現啟動閃退；未實際點擊還原或觸發同步，也未做推播 A/B。
 
 ## 來源
 

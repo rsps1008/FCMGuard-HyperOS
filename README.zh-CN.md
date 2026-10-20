@@ -1,6 +1,6 @@
 <p align="center">
 
-1.6.0 版本使用应用包名 `com.rsps1008.fcmguard`（versionCode 31）。Android 会将其视为不同于旧包名的独立应用，旧应用的设置、权限及 Shizuku 授权不会自动转移。移除旧应用前，请先停用其夜间保护并完成待清理操作。
+1.6.2 版本使用应用包名 `com.rsps1008.fcmguard`（versionCode 32）。Android 会将其视为不同于旧包名的独立应用，旧应用的设置、权限及 Shizuku 授权不会自动转移。移除旧应用前，请先停用其夜间保护并完成待清理操作。
   <a href="README.md">English</a> · <a href="README.zh-CN.md"><strong>简体中文</strong></a>
 </p>
 
@@ -194,9 +194,20 @@ MIT License — 见 [LICENSE](LICENSE)。
 `WRITE_SETTINGS` 权限操作 `Settings.System["com.miui.game.allowlist"]`；此部分不需要
 Root、Shizuku、持续 ADB 或无障碍服务。Aurogon 卡片有独立开关，默认关闭。开启后，FCM Guard
 自身读取用户安装 App 的 Xiaomi 自启动 AppOps（10008 与 10053），并在服务启动及现有 30 分钟
-进程内兜底检查时同步到 `Settings.Global["aurogon_enable"]`；手动同步共用此 App UID 流程。
-Shizuku 仅用于首次授予 `WRITE_SECURE_SETTINGS`，后续同步不再使用 Shizuku。卡片可列出目前
+进程内兜底检查时同步到 `Settings.Global["aurogon_enable"]`。缺少
+`WRITE_SECURE_SETTINGS` 时，手动「清空設定」与「同步自啟動 App」按钮会禁用；授予后才可操作，
+并通过平台写入结果与读回结果判断是否成功。周期同步也要求该权限。在 Aurogon 卡片的权限与操作说明中，
+Shizuku 仅在说明如何启用自动防护时提及。
+卡片可列出目前
 不受 Aurogon FCM 规则控制的用户 App 名称，不显示底层规则。保留 `targetSdk 22` 与原有 MILLET 白名单保护。
+
+另有独立、默认关闭的「Aurogon 闹钟允许清单」卡片管理
+`Settings.System["cloud_aurogon_alarm_allow_list"]`。它使用相同的 FCM 接收组件扫描规则，
+只有两个小米自启动 AppOps 均为开启时才新增 FCM 用户 App；每次同步也固定加入
+`com.google.android.gms`，并始终保留 ROM 内建的
+`com.tencent.mm`、`com.tencent.mobileqq`、`com.xtc.watch`，保留非本功能拥有的既有项目，
+仅移除本功能先前加入但现在已不符合条件的项目。此卡使用普通 `WRITE_SETTINGS`；开关开启时可手动同步或通过共享的 30 分钟进程内兜底同步，关闭时仍可手动同步。操作区第一行并排显示「还原默认设置」和「同步自启动 APP」，下一行是满宽的「查看目前被 Aurogon 闹钟保护的 APP」。还原会将清单重设为仅含三个内建项；若自动同步仍开启，后续同步会再次加入 GMS 和符合条件的 FCM App。此清单只影响 App 冻结时 Aurogon
+是否暂存其闹钟；不会阻止冻结、绕过 WakePath，也不保证 FCM 一定送达。
 
 功能针对中国版 HyperOS 4 在 23:00–07:59、息屏及 Deep Doze 下观察到的 nightDoze
 策略，属于未公开的实验性系统机制，不保证消息送达。旧版或无法辨识的 ROM 不会
@@ -212,7 +223,7 @@ Settings 没有 CAS，最终读取与写入之间仍可能被外部组件抢写�
 不增加计时器、闹钟、任务或 WakeLock。解冻与重连广播每 10 秒最多一组；失败的
 恢复可在后续兜底重试，无需重写健康清单。
 
-MILLET、夜间及 Aurogon 开关独立控制共享 GuardService。Aurogon 未开启时不会进行周期同步；
+MILLET、夜间、Aurogon 及 Aurogon 闹钟清单开关独立控制共享 GuardService。Aurogon 未开启时不会进行周期同步；
 手动同步按钮仍可单独执行。夜间功能仅监听自己的 Key，采用 400 ms
 防抖，并在启动时重新检查。常驻通知模式共享且可选；纯后台模式可靠性较低，
 进程停止后不能继续监控。开机或应用替换后按任一已启用开关尝试恢复服务。

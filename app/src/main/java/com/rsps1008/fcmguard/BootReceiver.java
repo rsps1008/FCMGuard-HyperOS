@@ -13,7 +13,9 @@ public class BootReceiver extends BroadcastReceiver {
             try {
                 if (!SettingsGuard.isProtectionEnabled(context) && !night.isEnabled()
                         && !(AurogonProtection.isAutoSyncEnabled(context)
-                        && AurogonProtection.hasSecureSettingsPermission(context))) return;
+                        && AurogonProtection.hasSecureSettingsPermission(context))
+                        && !(AlarmAllowListProtection.isAutoSyncEnabled(context)
+                        && android.provider.Settings.System.canWrite(context))) return;
                 Intent service = new Intent(context, GuardService.class);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         SettingsGuard.usePersistentNotification(context)) {

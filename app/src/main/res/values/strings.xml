@@ -36,11 +36,13 @@
     <string name="status_not_granted">Modify settings: not granted</string>
     <string name="status_enabled">Automatic protection: enabled</string>
     <string name="status_disabled">Automatic protection: disabled</string>
+    <string name="status_enabled_value">Enabled</string>
+    <string name="status_disabled_value">Disabled</string>
     <string name="present_yes">Required item present: yes</string>
     <string name="present_no">Required item present: no</string>
-    <string name="notification_mode_foreground">Background mode: foreground service</string>
-    <string name="notification_mode_hidden">Background mode: foreground service (notification hidden by system)</string>
-    <string name="notification_mode_quiet">Background mode: quiet background-only</string>
+    <string name="notification_mode_foreground">Persistent background: foreground service</string>
+    <string name="notification_mode_hidden">Persistent background: foreground service (notification hidden by system)</string>
+    <string name="notification_mode_quiet">Persistent background: quiet background-only</string>
 
     <string name="saved">Configuration saved</string>
     <string name="repaired">Repaired / protected</string>

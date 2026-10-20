@@ -36,11 +36,13 @@
     <string name="status_not_granted">修改系统设置：未授权</string>
     <string name="status_enabled">自动保护：已开启</string>
     <string name="status_disabled">自动保护：未开启</string>
+    <string name="status_enabled_value">已开启</string>
+    <string name="status_disabled_value">未开启</string>
     <string name="present_yes">必需项存在：是</string>
     <string name="present_no">必需项存在：否</string>
-    <string name="notification_mode_foreground">后台模式：前台服务</string>
-    <string name="notification_mode_hidden">后台模式：前台服务（通知被系统隐藏）</string>
-    <string name="notification_mode_quiet">后台模式：静默纯后台</string>
+    <string name="notification_mode_foreground">后台常驻：前台服务</string>
+    <string name="notification_mode_hidden">后台常驻：前台服务（通知被系统隐藏）</string>
+    <string name="notification_mode_quiet">后台常驻：静默纯后台</string>
 
     <string name="saved">配置已保存</string>
     <string name="repaired">已修复 / 已保护</string>

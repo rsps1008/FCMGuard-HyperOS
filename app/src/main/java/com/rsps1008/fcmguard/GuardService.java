@@ -31,6 +31,7 @@ public class GuardService extends Service {
     private ContentObserver nightObserver;
     private NightFcmProtection night;
     private volatile boolean aurogonInFlight;
+    private volatile boolean alarmAllowListInFlight;
     private HandlerThread repairThread;
     private Handler repairHandler;
     private boolean destroyed;
@@ -43,6 +44,7 @@ public class GuardService extends Service {
         @Override public void run() {
             repair(false);
             maintainAurogon();
+            maintainAlarmAllowList();
             handler.postDelayed(this, FALLBACK_INTERVAL_MS);
         }
     };
@@ -73,7 +75,8 @@ public class GuardService extends Service {
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (!SettingsGuard.isProtectionEnabled(this) && night.isInitialized() && !night.isEnabled()
                 && !(AurogonProtection.isAutoSyncEnabled(this)
-                && AurogonProtection.hasSecureSettingsPermission(this))) {
+                && AurogonProtection.hasSecureSettingsPermission(this))
+                && !(AlarmAllowListProtection.isAutoSyncEnabled(this) && Settings.System.canWrite(this))) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -113,6 +116,23 @@ public class GuardService extends Service {
                 if (!destroyed) AurogonProtection.syncCurrentAutostartApps(this);
             } finally {
                 aurogonInFlight = false;
+            }
+        });
+    }
+
+    private void maintainAlarmAllowList() {
+        if (!AlarmAllowListProtection.isAutoSyncEnabled(this)) return;
+        if (!Settings.System.canWrite(this)) {
+            AlarmAllowListProtection.failure(this, "WRITE_SETTINGS permission not granted");
+            return;
+        }
+        if (alarmAllowListInFlight || repairHandler == null) return;
+        alarmAllowListInFlight = true;
+        repairHandler.post(() -> {
+            try {
+                if (!destroyed) AlarmAllowListProtection.syncCurrentAutostartApps(this);
+            } finally {
+                alarmAllowListInFlight = false;
             }
         });
     }
@@ -160,7 +180,8 @@ public class GuardService extends Service {
         }
         if (night.isInitialized() && !night.isEnabled() && !SettingsGuard.isProtectionEnabled(this)
                 && !(AurogonProtection.isAutoSyncEnabled(this)
-                && AurogonProtection.hasSecureSettingsPermission(this))) stopSelf();
+                && AurogonProtection.hasSecureSettingsPermission(this))
+                && !(AlarmAllowListProtection.isAutoSyncEnabled(this) && Settings.System.canWrite(this))) stopSelf();
     }
 
     private void applyExecutionMode() {

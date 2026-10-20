@@ -36,11 +36,13 @@
     <string name="status_not_granted">Systemeinstellungen ändern: nicht erlaubt</string>
     <string name="status_enabled">Automatischer Schutz: aktiviert</string>
     <string name="status_disabled">Automatischer Schutz: deaktiviert</string>
+    <string name="status_enabled_value">Aktiviert</string>
+    <string name="status_disabled_value">Deaktiviert</string>
     <string name="present_yes">Erforderlicher Eintrag vorhanden: ja</string>
     <string name="present_no">Erforderlicher Eintrag vorhanden: nein</string>
-    <string name="notification_mode_foreground">Hintergrundmodus: Vordergrunddienst</string>
-    <string name="notification_mode_hidden">Hintergrundmodus: Vordergrunddienst (Benachrichtigung vom System ausgeblendet)</string>
-    <string name="notification_mode_quiet">Hintergrundmodus: still</string>
+    <string name="notification_mode_foreground">Hintergrund-Dauerbetrieb: Vordergrunddienst</string>
+    <string name="notification_mode_hidden">Hintergrund-Dauerbetrieb: Vordergrunddienst (Benachrichtigung vom System ausgeblendet)</string>
+    <string name="notification_mode_quiet">Hintergrund-Dauerbetrieb: still</string>
 
     <string name="saved">Konfiguration gespeichert</string>
     <string name="repaired">Repariert / geschützt</string>

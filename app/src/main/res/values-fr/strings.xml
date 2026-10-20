@@ -36,11 +36,13 @@
     <string name="status_not_granted">Modifier les paramètres : non autorisé</string>
     <string name="status_enabled">Protection automatique : activée</string>
     <string name="status_disabled">Protection automatique : désactivée</string>
+    <string name="status_enabled_value">Activée</string>
+    <string name="status_disabled_value">Désactivée</string>
     <string name="present_yes">Élément requis présent : oui</string>
     <string name="present_no">Élément requis présent : non</string>
-    <string name="notification_mode_foreground">Mode arrière-plan : service au premier plan</string>
-    <string name="notification_mode_hidden">Mode arrière-plan : service au premier plan (notification masquée par le système)</string>
-    <string name="notification_mode_quiet">Mode arrière-plan : silencieux</string>
+    <string name="notification_mode_foreground">Résidence en arrière-plan : service au premier plan</string>
+    <string name="notification_mode_hidden">Résidence en arrière-plan : service au premier plan (notification masquée par le système)</string>
+    <string name="notification_mode_quiet">Résidence en arrière-plan : silencieuse</string>
 
     <string name="saved">Configuration enregistrée</string>
     <string name="repaired">Réparé / protégé</string>

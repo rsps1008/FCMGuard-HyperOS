@@ -69,6 +69,9 @@ included_layouts = [node.attrib.get("layout") for node in content if node.tag ==
 assert included_layouts.index("@layout/aurogon_protection_card") < included_layouts.index("@layout/night_protection_card"), (
     "Aurogon protection must appear before nighttime protection"
 )
+assert included_layouts.index("@layout/aurogon_protection_card") < included_layouts.index("@layout/alarm_allowlist_card") < included_layouts.index("@layout/night_protection_card"), (
+    "Aurogon alarm allowlist must appear after Aurogon FCM protection and before nighttime protection"
+)
 status_layout = ET.parse(ROOT / "app/src/main/res/layout/status_card.xml").getroot()
 status_nodes = list(status_layout.iter())
 status_ids = {node.attrib.get(android_id) for node in status_nodes}
@@ -132,4 +135,26 @@ assert action_row.attrib.get(ns + "orientation") == "horizontal"
 assert "@+id/aurogonClearSetting" not in settings_ids
 assert "@+id/aurogonSyncNow" not in settings_ids
 assert "@+id/aurogonViewSetting" not in settings_ids
+alarm = ET.parse(ROOT / "app/src/main/res/layout/alarm_allowlist_card.xml").getroot()
+alarm_ids = {node.attrib.get(android_id) for node in alarm.iter()}
+for node in alarm.iter():
+    assert ns + "layout_width" in node.attrib, f"Missing layout_width on {node.tag} in Aurogon card"
+    assert ns + "layout_height" in node.attrib, f"Missing layout_height on {node.tag} in Aurogon card"
+for required in ("alarmListSwitch", "alarmListSummary", "alarmListViewSetting", "alarmListSyncNow",
+                 "alarmListRestoreBuiltIns", "alarmListActionsRow"):
+    assert "@+id/" + required in alarm_ids, f"Missing Aurogon alarm allowlist control: {required}"
+assert alarm.attrib.get(ns + "orientation") == "vertical"
+alarm_children = list(alarm)
+summary_index = next(i for i, node in enumerate(alarm_children)
+                     if node.attrib.get(android_id) == "@+id/alarmListSummary")
+row_index = next(i for i, node in enumerate(alarm_children)
+                 if node.attrib.get(android_id) == "@+id/alarmListActionsRow")
+view_index = next(i for i, node in enumerate(alarm_children)
+                  if node.attrib.get(android_id) == "@+id/alarmListViewSetting")
+assert row_index == summary_index + 1, "Restore and sync actions should share the row below the status summary"
+assert view_index == row_index + 1, "The full-width current-list action should follow the restore/sync row"
+action_row = alarm_children[row_index]
+row_ids = [node.attrib.get(android_id) for node in action_row]
+assert row_ids[0] == "@+id/alarmListRestoreBuiltIns" and row_ids[-1] == "@+id/alarmListSyncNow"
+assert action_row.attrib.get(ns + "orientation") == "horizontal"
 print("Protection tools placement and Aurogon card checks passed")

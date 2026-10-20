@@ -58,11 +58,6 @@ final class NightProtectionUi {
                 .setMessage(R.string.aurogon_clear_confirm)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    if (!AurogonProtection.hasSecureSettingsPermission(activity)) {
-                        render();
-                        Toast.makeText(activity, R.string.aurogon_status_permission, Toast.LENGTH_LONG).show();
-                        return;
-                    }
                     aurogonActionRunning = true;
                     updateAurogonActionAvailability();
                     ((MainActivity) activity).clearAurogonSetting((success, detail) -> {
@@ -75,18 +70,16 @@ final class NightProtectionUi {
     }
 
     private void syncAurogonNow() {
-        if (!AurogonProtection.hasSecureSettingsPermission(activity)) {
-            render();
-            Toast.makeText(activity, R.string.aurogon_status_permission, Toast.LENGTH_LONG).show();
-            return;
-        }
+        MainActivity mainActivity = (MainActivity) activity;
+        int scrollY = mainActivity.dashboardScrollPosition();
         aurogonActionRunning = true;
         updateAurogonActionAvailability();
-        ((MainActivity) activity).syncAurogonNow((success, detail) -> {
+        mainActivity.syncAurogonNow((success, detail) -> {
             aurogonActionRunning = false;
             Toast.makeText(activity, success ? activity.getString(R.string.aurogon_sync_done, detail)
                     : activity.getString(R.string.aurogon_action_failed, detail), Toast.LENGTH_LONG).show();
             render();
+            mainActivity.restoreDashboardScrollPosition(scrollY);
         });
     }
 
@@ -157,9 +150,11 @@ final class NightProtectionUi {
             lastEnabled = guard.isEnabled();
             serviceChanged.run();
         }
+        ((MainActivity) activity).refreshProtectionStatusCard();
     }
 
     private void updateAurogonActionAvailability() {
+        // The Global-setting actions stay disabled until WRITE_SECURE_SETTINGS is granted.
         boolean enabled = !aurogonActionRunning
                 && AurogonProtection.hasSecureSettingsPermission(activity);
         activity.findViewById(R.id.aurogonClearSetting).setEnabled(enabled);

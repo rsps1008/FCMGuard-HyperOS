@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
             "system", "en", "zh-CN", "zh-TW", "fr", "ja", "ko", "es", "pt", "de", "ru"
     };
     private NightProtectionUi nightUi;
+    private AlarmAllowListUi alarmAllowListUi;
     private EditText keyEdit;
     private EditText itemEdit;
     private TextView statusHeadline;
@@ -121,6 +122,7 @@ public class MainActivity extends Activity {
         setupSwitches();
         bindActions();
         nightUi = new NightProtectionUi(this, this::reconcileProtectionService);
+        alarmAllowListUi = new AlarmAllowListUi(this, this::reconcileProtectionService);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             shizukuAutostartManager = new ShizukuAutostartManager(this);
             Shizuku.addRequestPermissionResultListener(shizukuPermissionListener);
@@ -133,6 +135,7 @@ public class MainActivity extends Activity {
         super.onResume();
         configureFullEdgeToEdge();
         nightUi.resume();
+        alarmAllowListUi.render();
         reconcileProtectionService();
         refreshStatus(null);
         updateShizukuAccessUi();
@@ -303,7 +306,8 @@ public class MainActivity extends Activity {
                 notificationAccessPending = false;
                 languageAnimationHandler.removeCallbacks(notificationAccessFollowUp);
             }
-            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()) startProtectionService();
+            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()
+                    || AlarmAllowListProtection.isAutoSyncEnabled(this)) startProtectionService();
             refreshStatus(null);
         });
     }
@@ -312,7 +316,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.saveBtn).setOnClickListener(v -> {
             SettingsGuard.saveConfig(this, keyEdit.getText().toString(), itemEdit.getText().toString());
             loadConfigIntoFields();
-            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()) startProtectionService();
+            if (SettingsGuard.isProtectionEnabled(this) || NightFcmProtection.get(this).isEnabled()
+                    || AlarmAllowListProtection.isAutoSyncEnabled(this)) startProtectionService();
             toast(getString(R.string.saved));
             refreshStatus(getString(R.string.saved));
         });
@@ -599,7 +604,8 @@ public class MainActivity extends Activity {
         NightFcmProtection night = NightFcmProtection.get(this);
         if (SettingsGuard.isProtectionEnabled(this) || night.isEnabled() ||
                 (AurogonProtection.isAutoSyncEnabled(this)
-                        && AurogonProtection.hasSecureSettingsPermission(this))) startProtectionService();
+                        && AurogonProtection.hasSecureSettingsPermission(this)) ||
+                (AlarmAllowListProtection.isAutoSyncEnabled(this) && Settings.System.canWrite(this))) startProtectionService();
         else if (night.isInitialized()) stopService(new Intent(this, GuardService.class));
     }
 
@@ -648,10 +654,6 @@ public class MainActivity extends Activity {
     }
 
     public void clearAurogonSetting(AurogonActionCallback callback) {
-        if (!AurogonProtection.hasSecureSettingsPermission(this)) {
-            callback.onComplete(false, getString(R.string.aurogon_status_permission));
-            return;
-        }
         new Thread(() -> {
             AurogonProtection.ClearResult result = AurogonProtection.clearSettings(this);
             new Handler(Looper.getMainLooper()).post(() -> {
@@ -663,10 +665,6 @@ public class MainActivity extends Activity {
     }
 
     public void syncAurogonNow(AurogonActionCallback callback) {
-        if (!AurogonProtection.hasSecureSettingsPermission(this)) {
-            callback.onComplete(false, getString(R.string.aurogon_status_permission));
-            return;
-        }
         new Thread(() -> {
             AurogonProtection.SyncOutcome result = AurogonProtection.syncCurrentAutostartApps(this);
             new Handler(Looper.getMainLooper()).post(() -> {
@@ -811,14 +809,14 @@ public class MainActivity extends Activity {
         status.append('\n');
         appendStatusValueLine(
                 status,
-                enabled ? getString(R.string.status_enabled) : getString(R.string.status_disabled),
-                enabled ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
+                present ? getString(R.string.present_yes) : getString(R.string.present_no),
+                present ? R.color.status_value_green_bg : R.color.status_value_red_bg
         );
         status.append('\n');
         appendStatusValueLine(
                 status,
-                present ? getString(R.string.present_yes) : getString(R.string.present_no),
-                present ? R.color.status_value_green_bg : R.color.status_value_red_bg
+                enabled ? getString(R.string.status_enabled) : getString(R.string.status_disabled),
+                enabled ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
         );
         status.append('\n');
         boolean foregroundMode = notification && enabled;
@@ -830,17 +828,46 @@ public class MainActivity extends Activity {
         appendStatusValueLine(
                 status,
                 getString(notificationMode),
-                notificationVisible ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
+                foregroundMode ? R.color.status_value_green_bg : R.color.status_value_yellow_bg
         );
+
+        boolean aurogonEnabled = AurogonProtection.isAutoSyncEnabled(this);
         status.append('\n');
-        boolean secureSettings = AurogonProtection.hasSecureSettingsPermission(this);
-        appendStatusValueLine(status,
-                getString(secureSettings ? R.string.status_secure_settings_granted : R.string.status_secure_settings_missing),
-                secureSettings ? R.color.status_value_green_bg : R.color.status_value_yellow_bg);
+        appendStatusValueLine(status, getString(R.string.aurogon_title) + "："
+                        + getString(aurogonEnabled ? R.string.status_enabled_value : R.string.status_disabled_value),
+                aurogonEnabled ? R.color.status_value_green_bg : R.color.status_value_yellow_bg);
+
+        boolean alarmEnabled = AlarmAllowListProtection.isAutoSyncEnabled(this);
+        status.append('\n');
+        appendStatusValueLine(status, getString(R.string.status_aurogon_alarm_label) + "："
+                        + getString(alarmEnabled ? R.string.status_enabled_value : R.string.status_disabled_value),
+                alarmEnabled ? R.color.status_value_green_bg : R.color.status_value_yellow_bg);
+
+        NightFcmProtection nightProtection = NightFcmProtection.get(this);
+        boolean nightEnabled = nightProtection.isEnabled();
+        status.append('\n');
+        appendStatusValueLine(status, getString(R.string.status_hyperos4_night_label) + "："
+                        + getString(nightEnabled ? R.string.status_enabled_value : R.string.status_disabled_value),
+                nightEnabled ? R.color.status_value_green_bg : R.color.status_value_yellow_bg);
+
         statusText.setText(status);
         currentValueText.setText(buildWhitelistValue(current));
         permissionBtn.setVisibility(canWrite ? View.GONE : View.VISIBLE);
         findViewById(R.id.permissionCard).setVisibility(canWrite ? View.GONE : View.VISIBLE);
+    }
+
+    void refreshProtectionStatusCard() { refreshStatus(null); }
+
+    int dashboardScrollPosition() {
+        return findViewById(R.id.scroll).getScrollY();
+    }
+
+    void restoreDashboardScrollPosition(int scrollY) {
+        View scroll = findViewById(R.id.scroll);
+        scroll.post(() -> {
+            scroll.scrollTo(0, scrollY);
+            scroll.postOnAnimation(() -> scroll.scrollTo(0, scrollY));
+        });
     }
 
     private void appendStatusValueLine(SpannableStringBuilder out, String text, int backgroundColorRes) {

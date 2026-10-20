@@ -1,6 +1,6 @@
 <p align="center">
 
-Version 1.6.0 uses the application ID `com.rsps1008.fcmguard` (version code 31). Android treats it as a separate app from the previous package, so existing app settings, permissions and Shizuku authorization are not automatically transferred. Before removing the old app, disable its nighttime protection and complete any pending cleanup.
+Version 1.6.2 uses the application ID `com.rsps1008.fcmguard` (version code 32). Android treats it as a separate app from the previous package, so existing app settings, permissions and Shizuku authorization are not automatically transferred. Before removing the old app, disable its nighttime protection and complete any pending cleanup.
   <a href="README.md"><strong>English</strong></a> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
@@ -209,11 +209,24 @@ does not require root, Shizuku, persistent ADB or Accessibility. The Aurogon
 card has its own opt-in switch, off by default. When enabled, FCM Guard itself
 reads user-installed apps' Xiaomi Autostart AppOps (10008 and 10053) and syncs
 them to `Settings.Global["aurogon_enable"]` at startup and through the existing
-30-minute in-process fallback. Manual sync uses the same app-UID path. Shizuku
-is only needed once to grant `WRITE_SECURE_SETTINGS`; subsequent syncing does
-not use Shizuku. The card can list user apps not currently covered by an active
+30-minute in-process fallback. Manual clear and sync buttons remain disabled until
+`WRITE_SECURE_SETTINGS` is granted; after that, they report the platform
+write/read-back result. The periodic service is gated by the same permission.
+In the Aurogon card's permission and operation guidance, Shizuku is mentioned
+only when explaining automatic protection setup. The card can list user apps not currently covered by an active
 Aurogon FCM rule without showing the underlying rule text. The legacy `targetSdk 22` and
 original MILLET protection remain unchanged.
+
+The separate, default-off **Aurogon alarm allowlist** card manages
+`Settings.System["cloud_aurogon_alarm_allow_list"]`. It uses the same FCM receiver
+scan and requires both Xiaomi Autostart AppOps to be enabled before adding a user
+app. It always keeps the ROM's `com.tencent.mm`, `com.tencent.mobileqq`, and
+`com.xtc.watch` entries and always adds `com.google.android.gms`, preserves entries it does not own, and removes only stale
+entries it previously added. This card uses ordinary `WRITE_SETTINGS` and syncs on demand or through the shared 30-minute in-process
+fallback while its switch is enabled. Manual sync remains available while the switch is off.
+The card places **Restore default settings** and **Sync autostart apps** side by side, followed by a full-width **View apps protected by Aurogon alarms** button. Restore resets the setting to only the three built-in packages. If automatic sync remains enabled, a later sync will add GMS and eligible FCM apps again.
+The allowlist only affects Aurogon's alarm-caching decision for frozen
+apps; it does not prevent freezing, override WakePath, or guarantee FCM delivery.
 
 This targets the China-ROM HyperOS 4 nightDoze policy observed at 23:00–07:59,
 with screen off and deep Doze. It is an undocumented, experimental workaround,
@@ -235,7 +248,7 @@ no extra timer, alarm, job or wake lock. Broadcast requests are rate-limited to
 one pair per 10 seconds; failed recovery may retry on a later fallback without
 rewriting healthy membership.
 
-The MILLET, Nighttime, and Aurogon switches independently control the shared GuardService. Night
+The MILLET, Nighttime, Aurogon, and Aurogon alarm-list switches independently control the shared GuardService. Night
 protection registers only its exact key observer, debounces for 400 ms, and is
 checked again on startup. Foreground notification mode is shared and optional;
 quiet mode is less reliable. Monitoring cannot run after the process is stopped.

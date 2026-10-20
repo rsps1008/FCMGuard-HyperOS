@@ -54,13 +54,8 @@ public final class AurogonProtection {
         }
     }
 
-    /** The manual button and the 30-minute fallback share this app-UID scan and sync path. */
+    /** Runs the app-UID scan and attempts the Settings.Global sync; the engine verifies the write. */
     public static SyncOutcome syncCurrentAutostartApps(Context context) {
-        if (!hasSecureSettingsPermission(context)) {
-            String error = context.getString(R.string.aurogon_status_permission);
-            failure(context, error);
-            return new SyncOutcome(false, 0, error);
-        }
         AutostartStatusReader.ScanResult scan = AutostartStatusReader.findEnabledFcmPackages(context);
         if (!scan.readSucceeded) {
             String error = scan.error;
@@ -98,10 +93,6 @@ public final class AurogonProtection {
     public static ClearResult clearSettings(Context context) {
         synchronized (SETTINGS_LOCK) {
             ClearResult result = new ClearResult();
-            if (!hasSecureSettingsPermission(context)) {
-                result.error = "WRITE_SECURE_SETTINGS not granted";
-                return result;
-            }
             try {
                 boolean wrote = Settings.Global.putString(context.getContentResolver(), AurogonConfig.KEY, null);
                 String readBack = Settings.Global.getString(context.getContentResolver(), AurogonConfig.KEY);

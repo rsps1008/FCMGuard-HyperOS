@@ -45,6 +45,7 @@
     </LinearLayout>
 
     <include layout="@layout/aurogon_protection_card" />
+    <include layout="@layout/alarm_allowlist_card" />
     <include layout="@layout/night_protection_card" />
 
     <LinearLayout android:id="@+id/permissionCard"

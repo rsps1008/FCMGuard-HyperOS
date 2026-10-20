@@ -36,11 +36,13 @@
     <string name="status_not_granted">Изменение настроек: не разрешено</string>
     <string name="status_enabled">Автоматическая защита: включена</string>
     <string name="status_disabled">Автоматическая защита: выключена</string>
+    <string name="status_enabled_value">Включена</string>
+    <string name="status_disabled_value">Выключена</string>
     <string name="present_yes">Обязательный элемент присутствует: да</string>
     <string name="present_no">Обязательный элемент присутствует: нет</string>
-    <string name="notification_mode_foreground">Фоновый режим: foreground service</string>
-    <string name="notification_mode_hidden">Фоновый режим: foreground service (уведомление скрыто системой)</string>
-    <string name="notification_mode_quiet">Фоновый режим: тихий</string>
+    <string name="notification_mode_foreground">Постоянная работа в фоне: foreground service</string>
+    <string name="notification_mode_hidden">Постоянная работа в фоне: foreground service (уведомление скрыто системой)</string>
+    <string name="notification_mode_quiet">Постоянная работа в фоне: тихий режим</string>
 
     <string name="saved">Конфигурация сохранена</string>
     <string name="repaired">Исправлено / защищено</string>

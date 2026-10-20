@@ -36,11 +36,13 @@
     <string name="status_not_granted">Modificar ajustes: no permitido</string>
     <string name="status_enabled">Protección automática: activada</string>
     <string name="status_disabled">Protección automática: desactivada</string>
+    <string name="status_enabled_value">Activada</string>
+    <string name="status_disabled_value">Desactivada</string>
     <string name="present_yes">Elemento requerido presente: sí</string>
     <string name="present_no">Elemento requerido presente: no</string>
-    <string name="notification_mode_foreground">Modo en segundo plano: servicio en primer plano</string>
-    <string name="notification_mode_hidden">Modo en segundo plano: servicio en primer plano (notificación oculta por el sistema)</string>
-    <string name="notification_mode_quiet">Modo en segundo plano: silencioso</string>
+    <string name="notification_mode_foreground">Residencia en segundo plano: servicio en primer plano</string>
+    <string name="notification_mode_hidden">Residencia en segundo plano: servicio en primer plano (notificación oculta por el sistema)</string>
+    <string name="notification_mode_quiet">Residencia en segundo plano: silenciosa</string>
 
     <string name="saved">Configuración guardada</string>
     <string name="repaired">Reparado / protegido</string>
