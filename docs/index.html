@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FCM Guard+ for HyperOS</title>
+  <meta name="description" content="FCM Guard+ 是為中國版 HyperOS 設計的 Google Play 服務背景防護工具。">
+  <style>
+    :root { color-scheme: light; --bg:#eef4ff; --bg2:#f8fbff; --panel:rgba(255,255,255,.93); --text:#182033; --muted:#5f6a7b; --accent:#2563eb; --teal:#14b8a6; --border:#d7e1ef; --shadow:0 20px 60px rgba(20,35,60,.10); }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+    body { margin:0; font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif; color:var(--text); line-height:1.75; background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 28%),radial-gradient(circle at top right,rgba(20,184,166,.14),transparent 24%),linear-gradient(180deg,var(--bg),var(--bg2)); }
+    main { width:min(1080px,calc(100% - 32px)); margin:auto; padding:32px 0 56px; }
+    .hero,.card { background:var(--panel); border:1px solid var(--border); box-shadow:var(--shadow); backdrop-filter:blur(10px); }
+    .hero { padding:34px 32px; border-radius:28px; margin-bottom:20px; display:grid; gap:18px; }
+    .eyebrow { margin:0; color:var(--accent); font-size:.82rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .title-row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+    h1 { margin:0; font-size:clamp(2.2rem,4.6vw,4rem); line-height:1.04; letter-spacing:-.02em; }
+    .pill,.chip { display:inline-flex; align-items:center; padding:7px 12px; border-radius:999px; font-weight:700; }
+    .pill { border:1px solid rgba(37,99,235,.16); background:rgba(37,99,235,.08); color:var(--accent); padding:8px 14px; }
+    .lead { max-width:800px; margin:0; color:var(--muted); font-size:1.05rem; line-height:1.85; }
+    .actions,.chips { display:flex; flex-wrap:wrap; gap:10px; }
+    .actions { margin-top:6px; gap:12px; }
+    .button,.button-secondary { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 18px; border-radius:999px; text-decoration:none; font-weight:800; }
+    .button { color:#fff; background:linear-gradient(135deg,var(--accent),#1741a6); box-shadow:0 12px 26px rgba(37,99,235,.24); }
+    .button-secondary { color:#1741a6; background:rgba(37,99,235,.08); border:1px solid rgba(37,99,235,.14); }
+    .chip { border:1px solid rgba(95,106,123,.16); background:#fff; color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    .card { padding:24px; border-radius:24px; }
+    h2 { margin:0 0 12px; font-size:1.18rem; line-height:1.35; } p { margin:0; }
+    ul { margin:0; padding-left:1.2rem; line-height:1.9; } li+li { margin-top:4px; }
+    a { color:#1741a6; text-decoration-thickness:1.5px; text-underline-offset:2px; overflow-wrap:anywhere; }
+    .feature-list { display:grid; gap:14px; margin-top:16px; }
+    .feature { padding:16px 18px; border-radius:18px; border:1px solid rgba(95,106,123,.14); background:rgba(255,255,255,.72); }
+    .feature strong { display:block; margin-bottom:6px; } .feature p { color:var(--muted); font-size:.97rem; }
+    .note { margin-top:16px; padding:14px 16px; border-left:4px solid var(--teal); border-radius:12px; background:rgba(20,184,166,.08); color:var(--muted); }
+    .footer { margin-top:18px; color:var(--muted); font-size:.92rem; text-align:center; }
+    @media(max-width:760px) { main { width:min(100% - 20px,720px); padding:16px 0 32px; } .hero,.card { border-radius:18px; } .hero { padding:24px 18px; } .card { padding:18px; } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Android Utility · HyperOS</p>
+      <div class="title-row"><h1>FCM Guard+</h1><span class="pill">Android App</span></div>
+      <p class="lead">為中國版 HyperOS 設計的 Google Play 服務背景防護工具。透過保留小米系統的 GMS 免限制項目，以及管理部分 Aurogon 規則，降低背景凍結造成推播延遲或中斷的機會。</p>
+      <div class="actions"><a class="button" href="https://github.com/rsps1008/FCMGuard-HyperOS/releases/latest">下載最新版本</a><a class="button-secondary" href="./privacy-policy/">隱私權政策</a><a class="button-secondary" href="https://github.com/rsps1008/FCMGuard-HyperOS">GitHub 專案</a></div>
+      <div class="chips" aria-label="主要特色"><span class="chip">保留既有系統清單</span><span class="chip">可選自動保護</span><span class="chip">不需 Root</span><span class="chip">無廣告</span></div>
+    </section>
+    <section class="grid">
+      <article class="card" id="features"><h2>主要功能</h2><div class="feature-list">
+        <div class="feature"><strong>GMS 免限制保護</strong><p>檢查 MILLET_NO_RESTRICT_APP，缺少 Google Play 服務時才加入，並保留清單內其他套件。</p></div>
+        <div class="feature"><strong>自動保護</strong><p>可監聽目標設定變更並在 App 進程內低頻檢查；只有實際修復或使用者手動操作時才嘗試重新連線 FCM。</p></div>
+        <div class="feature"><strong>Aurogon 與 FCM App 助手</strong><p>可選管理部分 HyperOS 規則，並依受限的 FCM/GCM 元件查詢尋找可能使用 FCM 的 App。</p></div>
+        <div class="feature"><strong>可選 Shizuku 自啟動控制</strong><p>只有使用者明確操作並完成 Shizuku 授權後，才可修改個別 App 的 Xiaomi 自啟動設定。</p></div>
+      </div></article>
+      <article class="card"><h2>開始使用</h2><ul><li>從 GitHub Releases 下載並安裝 APK。</li><li>允許 FCM Guard+ 修改系統設定，再執行 GMS 免限制清單修復。</li><li>按需要開啟自動保護及其他選用功能。</li><li>如使用 Aurogon FCM 規則，依 App 內指示完成額外權限設定。</li></ul><div class="note">本工具不能保證每個 App 的通知即時送達。接收 App 自身的電池、自啟動、網路及通知政策也會影響推播。</div></article>
+      <article class="card"><h2>權限與隱私</h2><p>主要功能在裝置上讀取或修改使用者選擇的 HyperOS 系統設定。App 不要求 Root、無障礙、VPN、懸浮視窗、裝置管理員或 QUERY_ALL_PACKAGES。使用範圍、權限與資料處理詳見<a href="./privacy-policy/">隱私權政策</a>。</p></article>
+      <article class="card"><h2>支援與限制</h2><ul><li>需要 Android 6.0（API 23）或更新版本及可用的 Google Play 服務。</li><li>主要針對 Xiaomi／Redmi／POCO 中國版 HyperOS；不同 ROM 的私有介面可能有差異。</li><li>寫入成功或設定讀回一致，不代表已驗證 FCM 傳輸或接收 App 通知。</li><li><a href="https://github.com/rsps1008/FCMGuard-HyperOS/blob/main/docs/powerkeeper-os3-os4-fcm-investigation.md">查看 HyperOS 研究報告</a> · <a href="https://github.com/rsps1008/FCMGuard-HyperOS/issues">回報問題</a></li></ul></article>
+    </section>
+    <p class="footer">FCM Guard+ for HyperOS · <a href="./privacy-policy/">隱私權政策</a> · <a href="https://github.com/rsps1008/FCMGuard-HyperOS">GitHub</a></p>
+  </main>
+</body>
+</html>

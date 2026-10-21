@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FCM Guard+ 隱私權政策</title>
+  <meta name="description" content="FCM Guard+ 隱私權政策，說明 App 的資料處理、權限及使用者控制方式。">
+  <style>
+    :root { color-scheme:light; --bg:#eef4ff; --bg2:#f8fbff; --panel:rgba(255,255,255,.94); --text:#182033; --muted:#5f6a7b; --accent:#2563eb; --teal:#14b8a6; --border:#d7e1ef; --shadow:0 20px 60px rgba(20,35,60,.10); }
+    * { box-sizing:border-box; } body { margin:0; font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif; color:var(--text); line-height:1.75; background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 28%),radial-gradient(circle at top right,rgba(20,184,166,.14),transparent 24%),linear-gradient(180deg,var(--bg),var(--bg2)); }
+    main { max-width:980px; margin:auto; padding:40px 20px 64px; } .hero { display:grid; gap:14px; margin-bottom:20px; }
+    .eyebrow { margin:0; color:var(--accent); font-size:.82rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .title-row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; } h1 { margin:0; font-size:clamp(2rem,4vw,3.1rem); line-height:1.12; }
+    .pill { padding:8px 14px; border-radius:999px; border:1px solid rgba(37,99,235,.18); background:rgba(37,99,235,.08); color:var(--accent); font-size:.92rem; font-weight:700; }
+    .meta { margin:0; color:var(--muted); } .card { background:var(--panel); border:1px solid var(--border); border-radius:26px; padding:30px; box-shadow:var(--shadow); }
+    .summary { display:grid; gap:10px; margin-bottom:26px; padding:18px; border:1px solid rgba(37,99,235,.12); border-radius:18px; background:linear-gradient(180deg,rgba(37,99,235,.06),rgba(20,184,166,.05)); }
+    h2 { margin:28px 0 12px; font-size:1.18rem; line-height:1.35; } p { margin:0 0 14px; } ul { margin:0 0 16px; padding-left:1.25rem; } li { margin-bottom:8px; }
+    a { color:#1741a6; text-decoration-thickness:1.5px; text-underline-offset:2px; overflow-wrap:anywhere; } .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:18px; }
+    .info-box { padding:16px 18px; border-radius:18px; border:1px solid rgba(95,106,123,.16); background:rgba(255,255,255,.72); } .info-box h3 { margin:0 0 8px; font-size:1rem; } .info-box p { margin:0; color:var(--muted); font-size:.96rem; }
+    .note { margin-top:28px; padding:14px 16px; border-left:4px solid var(--teal); border-radius:12px; background:rgba(20,184,166,.08); color:var(--muted); } footer { margin-top:24px; color:var(--muted); font-size:.92rem; }
+    @media(max-width:720px) { main { padding:18px 12px 32px; } .card { padding:20px 16px; border-radius:18px; } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-label="隱私權政策標題"><p class="eyebrow">Privacy Policy</p><div class="title-row"><h1>FCM Guard+ 隱私權政策</h1><span class="pill">FCM Guard+ for HyperOS</span></div><p class="meta">最後更新日期：2026 年 10 月 21 日</p></section>
+    <section class="card">
+      <div class="summary"><p><strong>FCM Guard+</strong> 是一款在 Android 裝置上管理部分 HyperOS 背景設定的工具。</p><p>本政策說明 App 在提供功能時處理哪些資料、資料是否傳出裝置，以及你如何控制相關操作。</p></div>
+      <h2>1. 開發者與聯絡方式</h2><ul><li>開發者／專案維護者：rsps1008</li><li>專案：<a href="https://github.com/rsps1008/FCMGuard-HyperOS">FCMGuard-HyperOS GitHub Repository</a></li><li>問題與隱私詢問：<a href="https://github.com/rsps1008/FCMGuard-HyperOS/issues">GitHub Issues</a></li></ul>
+      <h2>2. App 會處理的資料</h2><ul><li><strong>HyperOS 設定值：</strong>讀取並在你啟用相關功能時更新 GMS 免限制清單及其他選用的 HyperOS 設定。修復時會保留原有清單項目。</li><li><strong>已安裝套件資訊：</strong>FCM App 助手依 Android 套件可見性規則，查詢符合 FCM/GCM 訊號的 App；不使用 QUERY_ALL_PACKAGES。此查詢可能揭露裝置上安裝 App 的資訊，因此只用於顯示掃描結果與相關管理功能。</li><li><strong>本機偏好設定：</strong>保存保護開關、顯示偏好、最近結果及部分清單管理狀態，以維持 App 功能。</li><li><strong>Shizuku 授權操作：</strong>只有你主動使用自啟動控制或 App 內引導的權限設定時，才透過已授權的 Shizuku 使用者服務執行相應操作。</li></ul>
+      <h2>3. 資料如何使用</h2><ul><li>辨識 GMS 是否已在免限制清單；只有需要修復或你手動要求時才嘗試更新設定。</li><li>監聽目標設定的變化，並在保護功能啟用且 App 進程可執行時進行修復。</li><li>根據受限套件查詢列出可能使用 FCM/GCM 的 App，並在可行時唯讀顯示自啟動狀態。</li><li>只在你明確操作時，透過 Shizuku 修改個別 App 的自啟動設定；App 不會自行開啟 USB 或無線除錯。</li></ul>
+      <h2>4. 資料是否離開裝置</h2><p>App 的核心修復、掃描、偏好設定及 Shizuku 使用者服務均在裝置端執行。本專案不設置自有帳號系統或後端服務來收集、接收或儲存上述資料。App 不會把掃描清單或系統設定值傳送給專案維護者。</p><p>若你使用 GitHub 網站或其他外部服務（例如下載版本、開啟專案頁面或提交問題），該服務會依其自身政策處理你提供的資料。Android、HyperOS、Shizuku 及 Google Play 服務也可能依其平台功能處理系統資料。</p>
+      <h2>5. 權限與系統能力</h2><ul><li><strong>修改系統設定（WRITE_SETTINGS）：</strong>在你授權後，用於維護支援的 HyperOS 系統設定；拒絕授權時，相關寫入功能不可用。</li><li><strong>WRITE_SECURE_SETTINGS：</strong>只供你選擇設定的 Aurogon 功能使用，須由使用者透過 App 指引明確授權；不會自行提升權限。</li><li><strong>套件可見性查詢：</strong>只宣告 FCM/GCM 接收訊號及少數必要套件，不要求 QUERY_ALL_PACKAGES。</li><li><strong>背景服務與開機事件：</strong>在你啟用自動保護後，用於監聽設定和在重新開機或更新後嘗試恢復服務；實際執行仍受 Android／HyperOS 管理。</li><li><strong>通知：</strong>在支援的 Android 版本上用於顯示可選的持續保護通知。</li><li><strong>Shizuku：</strong>僅限你明確要求的選用操作，且需要 Shizuku 服務運作並取得使用者授權。</li></ul>
+      <h2>6. 第三方 SDK 與廣告</h2><p>App 不含廣告 SDK，也不含本專案用來追蹤使用者或建立個人檔案的分析服務。App 使用 Shizuku 官方 API／Provider 支援選用的使用者授權操作；該元件不會因此自動取得授權，操作需經你的明確同意。</p>
+      <h2>7. 資料保存與刪除</h2><p>App 偏好及狀態資料保存在裝置本機的 App 私有儲存空間。清除 App 資料或解除安裝通常會移除該資料。由 App 修改的 HyperOS 系統設定可能獨立保留；解除安裝不保證自動還原，請在移除前使用 App 提供的停用或清理功能（若有）。</p>
+      <h2>8. 安全性與資料分享</h2><p>本專案不會出售、出租或分享 App 取得的資料給廣告商或資料仲介。App 不使用 Root、無障礙服務、VPN、懸浮視窗、裝置管理員、帳號讀取或網路流量擷取。系統與裝置廠商對其平台資料的處理，則由各自的政策規範。</p>
+      <h2>9. 兒童與年齡限制</h2><p>App 是裝置管理工具，沒有專為兒童設計的帳號或社群功能。本專案不會刻意收集兒童個人資料。</p>
+      <h2>10. 政策變更</h2><p>功能或法規需求改變時，本政策可能更新。更新後會在本頁標示新的更新日期。</p>
+      <h2>11. 聯絡我們</h2><div class="grid"><div class="info-box"><h3>GitHub 專案</h3><p><a href="https://github.com/rsps1008/FCMGuard-HyperOS">https://github.com/rsps1008/FCMGuard-HyperOS</a></p></div><div class="info-box"><h3>問題回報</h3><p><a href="https://github.com/rsps1008/FCMGuard-HyperOS/issues">FCMGuard-HyperOS Issues</a></p></div></div>
+      <div class="note">FCM Guard+ 主要針對 HyperOS 廠商設定提供最佳努力管理。設定寫入成功不代表已驗證推播傳輸、解除系統凍結或接收 App 顯示通知。</div>
+      <footer><a href="../">返回 FCM Guard+ 首頁</a> · 本政策適用於 FCM Guard+ Android App。</footer>
+    </section>
+  </main>
+</body>
+</html>
